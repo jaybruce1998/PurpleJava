@@ -18,6 +18,7 @@ import java.nio.file.Path;
 import java.util.concurrent.*;
 
 import java.io.InputStream;
+import java.util.LinkedHashSet;
 
 public class OverworldGui extends JPanel {
     static final int TILE_SIZE = 64;
@@ -25,9 +26,9 @@ public class OverworldGui extends JPanel {
     static final int DISPLAY_H = 11; // how many tiles vertically to draw
 	static final Item FAKE_ID=Item.ITEM_MAP.get("Fake ID");
 	static final Item LIFT_KEY=Item.ITEM_MAP.get("Lift Key");
-	static boolean showingText, battling, choosingFromLongList, usingBattleItem, busedItem, rightClicked, inMenu, buySell, buying, selling, checkingPokes, checkingMoves, checkingTms, teachingMove, depWith, depositing, withdraw, flying, inside, showingDex, rareCandy, pickingStarter;
+	static boolean showingText, battling, choosingFromLongList, usingBattleItem, busedItem, rightClicked, inMenu, buySell, buying, selling, checkingPokes, checkingMoves, checkingTms, teachingMove, depWith, depositing, withdraw, flying, inside, showingDex, rareCandy, pickingStarter, surfing;
 	static String currentText, currentLoc;
-	private static Deque<String> printQ=new ArrayDeque<>();
+	private static final Deque<String> printQ=new ArrayDeque<>();
     static String mapName = "RedsHouse2F";
     private int playerX=0, playerY=6, repelSteps=0, boxNum, psi;
     static PokeMap pm = PokeMap.POKEMAPS.get(mapName);
@@ -36,7 +37,7 @@ public class OverworldGui extends JPanel {
     private int[][] tileTypes;
     private PokeMap[] connections = new PokeMap[4]; // N S W E
     private int[] connOffsets = new int[4]; // offsets for N,S,W,E
-    private final BufferedImage[] tileImages = new BufferedImage[801], playerFrames = new BufferedImage[10], pBattlers=new BufferedImage[153], eBattlers=new BufferedImage[153];
+    private final BufferedImage[] tileImages = new BufferedImage[801], playerFrames = new BufferedImage[10], seel = new BufferedImage[10], pBattlers=new BufferedImage[153], eBattlers=new BufferedImage[153];
 	static final Move CUT=Move.MOVE_MAP.get("Cut");
 	static final Move FLY=Move.MOVE_MAP.get("Fly");
 	static final Move SURF=Move.MOVE_MAP.get("Surf");
@@ -60,14 +61,18 @@ public class OverworldGui extends JPanel {
 
     private Timer timer;
     private StepPhase stepPhase = StepPhase.NONE;
-    private int phaseFrame = 0;
-    private int currentStepFrames = 8;
-    private final int BUMP_STEP_FRAMES = 16;
+    private int phaseFrame = 0, frames=0, mouseX, mouseY;
+	private final int NUM_STEP_FRAMES=8;
+    private int currentStepFrames = NUM_STEP_FRAMES;
+    private final int BUMP_STEP_FRAMES = NUM_STEP_FRAMES*2;
     private int timesMoved = 0;
 	public static Font pokemonFont;
 	public final Player player;
 	private int bet=1;
 	private final JFrame frame;
+	private final BufferedImage[] DANCE_FRAMES=new BufferedImage[10];
+	private final Giver MATT=PokeMap.POKEMAPS.get("Route4").givers[3][63];
+	private boolean spaceHeld;
 	enum Direction {
 		SOUTH(0),
 		NORTH(1),
@@ -127,15 +132,9 @@ public class OverworldGui extends JPanel {
 	}
 	private void setup()
 	{
-		BufferedImage[] DANCE_FRAMES=new BufferedImage[10];
-		final Giver g=PokeMap.POKEMAPS.get("Route4").givers[3][63];
 		try {
 			for(int i=0; i<10; i++)
 				DANCE_FRAMES[i]=scale(ImageIO.read(OverworldGui.class.getResourceAsStream("/sprites/COOLTRAINER_F/" + i + ".png")));
-			ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-			scheduler.scheduleAtFixedRate(() -> {
-				g.bi=DANCE_FRAMES[(int)(Math.random()*10)];
-			}, 0, 500, TimeUnit.MILLISECONDS);
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
@@ -187,8 +186,15 @@ public class OverworldGui extends JPanel {
 			System.exit(1);
 		}
         setupKeyBindings();
-
+		
         timer = new Timer(1000 / 60, e -> {
+			if(++frames%6==0)
+			{
+				if(spaceHeld)
+					clickMouse();
+				if(frames%30==0)
+					MATT.bi=DANCE_FRAMES[(int)(Math.random()*10)];
+			}
             update();
             repaint();
         });
@@ -251,6 +257,7 @@ public class OverworldGui extends JPanel {
         try {
             for (int i = 0; i < 10; i++) {
                 playerFrames[i] = scale(ImageIO.read(OverworldGui.class.getResourceAsStream("/sprites/RED/" + i + ".png")));
+                seel[i] = scale(ImageIO.read(OverworldGui.class.getResourceAsStream("/sprites/SEEL/" + i + ".png")));
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -290,6 +297,675 @@ public class OverworldGui extends JPanel {
 		for(boolean b: a)
 			sb.append(b?'1':'0');
 	}
+	private void clickMouse()
+	{
+		if(showingText)
+			if(printQ.isEmpty())
+				showingText = false;
+			else
+				currentText=printQ.pop();
+		else if(pickingStarter)
+		{
+			pickingStarter=false;
+			int y=mouseY;
+			if(y<165)
+				return;
+			if(y<340)
+			{
+				int x=mouseX;
+				if(x>35&&x<175)
+					player.give(new Battler(1, Monster.MONSTER_MAP.get("Bulbasaur")));
+				else if(x>285&&x<440)
+					player.give(new Battler(1, Monster.MONSTER_MAP.get("Charmander")));
+				else if(x>540)
+					player.give(new Battler(1, Monster.MONSTER_MAP.get("Squirtle")));
+				else
+					pickingStarter=true;
+			}
+			else
+				switch((y-540)/25)
+				{
+					case 0:
+						player.give(new Battler(1, Monster.MONSTER_MAP.get("Bulbasaur")));
+						break;
+					case 1:
+						player.give(new Battler(1, Monster.MONSTER_MAP.get("Charmander")));
+						break;
+					case 2:
+						player.give(new Battler(1, Monster.MONSTER_MAP.get("Squirtle")));
+						break;
+					default:
+						pickingStarter=true;
+				}
+		}
+		else if(buySell)
+		{
+			clickedChoice = (mouseY-540)/25;
+			if(clickedChoice==0)
+			{
+				buying=true;
+				buySell=false;
+				longArr=new String[martItems.length];
+				for(int i=0; i<longArr.length; i++)
+					longArr[i]=martItems[i].toString();
+				choosingFromLongList=true;
+			}
+			else if(clickedChoice==1)
+			{
+				selling=true;
+				buySell=false;
+				int n=0;
+				for(Item i: player.items)
+					if(i.price>0)
+						n++;
+				usableItems=new Item[n];
+				longArr=new String[n];
+				int i=0;
+				for(Item item: player.items)
+					if(item.price>0)
+					{
+						usableItems[i]=item;
+						longArr[i++]=item.name+" "+item.price/2;
+					}
+				choosingFromLongList=true;
+			}
+		}
+		else if(buying)
+		{
+			clickedChoice = (mouseY-80)/25;
+			if(clickedChoice<0||clickedChoice>=martItems.length)
+				return;
+			MartItem mi=martItems[clickedChoice];
+			if(mi.item!=null)
+			{
+				String input = JOptionPane.showInputDialog("Enter a quantity to purchase:");
+				int q;
+				try {
+					q=Integer.parseInt(input);
+				} catch(Exception ex) {
+					print("Quit messing around over there!");
+					return;
+				}
+				if(q<1||q>99)
+				{
+					print("You can buy between 1 and 99 items.");
+					return;
+				}
+				int n=q*mi.price;
+				if(n>player.money)
+				{
+					print("You don't have the money for all of these!");
+					return;
+				}
+				player.money-=n;
+				player.give(mi.item, q);
+				print("Thank you!");
+			}
+			else
+			{
+				if(player.money<mi.price)
+				{
+					print("You don't have the money for this!");
+					return;
+				}
+				if(mi.mon==null)
+				{
+					if(player.give(mi.move))
+						player.money-=mi.price;
+				}
+				else
+				{
+					player.money-=mi.price;
+					player.give(new Battler(1, mi.mon));
+				}
+			}
+		}
+		else if(selling)
+		{
+			clickedChoice = (mouseY-80)/25;
+			if(clickedChoice<0||clickedChoice>=usableItems.length)
+				return;
+			String input = JOptionPane.showInputDialog("Enter a quantity to sell:");
+			int q;
+			try {
+				q=Integer.parseInt(input);
+			} catch(Exception ex) {
+				print("Quit messing around over there!");
+				return;
+			}
+			if(q<1)
+			{
+				print("Hey come on, be serious!");
+				return;
+			}
+			player.sell(usableItems[clickedChoice], q);
+			buySell=true;
+			selling=false;
+			choosingFromLongList=false;
+			print("Thank you!");
+		}
+		else if(checkingPokes)
+		{
+			clickedChoice = (mouseY-80)/25;
+			if(clickedChoice<0||clickedChoice>=player.team.length)
+				return;
+			if(player.team[clickedChoice]!=null)
+			{
+				longArr=player.team[clickedChoice].allInformation();
+				checkingPokes=false;
+				checkingMoves=true;
+			}
+		}
+		else if(checkingMoves)
+		{
+			longArr=Battler.partyStrings(player.team);
+			checkingPokes=true;
+			checkingMoves=false;
+		}
+		else if(checkingTms)
+		{
+			clickedChoice=(mouseY-80)/25;
+			if(clickedChoice<0||clickedChoice>=tms.length)
+				return;
+			tm=tms[clickedChoice];
+			checkingTms=false;
+			teachingMove=true;
+			strArr[0]=null;
+			longArr=Battler.partyStrings(player.team);
+		}
+		else if(teachingMove)
+		{
+			if(strArr[0]==null)
+			{
+				clickedChoice = (mouseY-80)/25;
+				if(clickedChoice<0||clickedChoice>=player.team.length||player.team[clickedChoice]==null)
+					return;
+				chosenMon=player.team[clickedChoice];
+				if(Monster.MONSTERS[chosenMon.dexNum].learnable.contains(tm))
+				{
+					for(int i=0; i<chosenMon.moves.length; i++)
+						if(chosenMon.moves[i]==null)
+						{
+							strArr[0]=null;
+							chosenMon.moves[i]=tm;
+							print(chosenMon.nickname+" learned "+tm.name+"!");
+							return;
+						}
+						else if(chosenMon.moves[i]==tm)
+						{
+							strArr[0]=null;
+							OverworldGui.print(chosenMon.nickname+" already knows "+tm.name+"!");
+							return;
+						}
+						else
+							strArr[i]=chosenMon.moves[i].name;
+					print(chosenMon.nickname+" is trying to learn "+tm.name+"! Select a move to replace it with.");
+				}
+				else
+					print(chosenMon.nickname+" cannot learn "+tm.name+".");
+			}
+			else
+			{
+				clickedChoice=(mouseY-540)/25;
+				if(clickedChoice<0||clickedChoice>=chosenMon.moves.length)
+					return;
+				while(clickedChoice>1&&chosenMon.moves[clickedChoice-1]==null)
+					clickedChoice--;
+				if(chosenMon.moves[clickedChoice]!=null)
+					print(chosenMon.nickname+" forgot how to use "+chosenMon.moves[clickedChoice].name+", but...");
+				chosenMon.moves[clickedChoice]=tm;
+				strArr[0]=null;
+				chosenMon.pp[clickedChoice]=Math.min(chosenMon.pp[clickedChoice], tm.pp);
+				print(chosenMon.nickname+" learned "+tm.name+"!");
+			}
+		}
+		else if(depWith)
+		{
+			clickedChoice=(mouseY-540)/25;
+			if(clickedChoice==0)
+			{
+				depositing=true;
+				depWith=false;
+				longArr=Battler.partyStrings(player.team);
+				choosingFromLongList=true;
+			}
+			else if(clickedChoice==1)
+			{
+				withdraw=true;
+				depWith=false;
+				longArr=new String[20];
+				int n=Math.min(20, player.pc.size());
+				for(int i=0; i<n; i++)
+					longArr[i]=player.pc.get(i).toString();
+				for(int i=n; i<20; i++)
+					longArr[i]="";
+				psi=0;
+				boxNum=1;
+				choosingFromLongList=true;
+			}
+		}
+		else if(depositing)
+		{
+			clickedChoice = (mouseY-80)/25;
+			if(clickedChoice<0||clickedChoice>=player.team.length||player.team[clickedChoice]==null)
+				return;
+			if(player.team[1]==null)
+			{
+				depositing=false;
+				depWith=true;
+				choosingFromLongList=false;
+				print("No, you'll never survive in this world without pokemon!");
+				return;
+			}
+			print("You deposited "+player.team[clickedChoice].nickname+"!");
+			player.pc.add(player.team[clickedChoice]);
+			for(int i=clickedChoice+1; i<player.team.length; i++)
+			{
+				player.team[i-1]=player.team[i];
+				longArr[i-1]=longArr[i];
+			}
+			player.team[5]=null;
+			longArr[5]="";
+		}
+		else if(withdraw)
+		{
+			clickedChoice=(mouseY-80)/25;
+			if(clickedChoice<0||clickedChoice>19)
+				return;
+			int ind=clickedChoice+psi;
+			if(ind>=player.pc.size())
+				return;
+			for(int i=1; i<player.team.length; i++)
+				if(player.team[i]==null)
+				{
+					player.team[i]=player.pc.remove(ind);
+					for(int j=clickedChoice; j<19;)
+						longArr[j]=longArr[++j];
+					ind=psi+19;
+					if(ind<player.pc.size())
+						longArr[19]=player.pc.get(ind).toString();
+					print("You withdrew "+player.team[i].nickname+"!");
+					return;
+				}
+			withdraw=false;
+			depWith=true;
+			choosingFromLongList=false;
+			print("Hey, you already have 6 pokemon with you! Don't be greedy.");
+		}
+		else if(flying)
+		{
+			String n=FlyLocation.NAME_MAP[mouseY/64][mouseX/64];
+			if(n==null)
+				return;
+			String p=printable(n);
+			if(inside||!p.equals(currentLoc)||!player.leadersBeaten[2]||!player.hasMove(FLY))
+			{
+				currentLoc=p;
+				return;
+			}
+			FlyLocation f=FlyLocation.FLY_LOCATIONS.get(n);
+			if(f==null)
+				return;
+			loadMap(f.dest);
+			playerX=f.x;
+			playerY=f.y;
+			inMenu=false;
+			flying=false;
+			print("You flew to "+p+"!");
+		}
+		else if(!showingDex&&choosingFromLongList)
+			if(usableItems==null)
+				synchronized (choiceLock) {
+					clickedChoice = (mouseY-80)/25;
+					choiceLock.notify();
+				}
+			else
+			{
+				clickedChoice = (mouseY-80)/25;
+				if(usedItem==null)
+				{
+					if(clickedChoice<0||clickedChoice>=usableItems.length)
+						return;
+					inMenu=false;
+					usedItem=usableItems[clickedChoice];
+					switch(usedItem.name)
+					{
+						case "X Accuracy":
+							playerState.accStage++;
+							print(playerState.monster.nickname+"'s accuracy rose by 1 stage!");
+							if(playerState.accStage==7)
+							{
+								playerState.accStage=6;
+								print("Although it maxed out at 6!");
+							}
+							notifyUseItem(true);
+							break;
+						case "X Attack":
+							playerState.atkStage++;
+							print(playerState.monster.nickname+"'s attack rose by 1 stage!");
+							if(playerState.atkStage==7)
+							{
+								playerState.atkStage=6;
+								print("Although it maxed out at 6!");
+							}
+							notifyUseItem(true);
+							break;
+						case "X Defend":
+							playerState.defStage++;
+							print(playerState.monster.nickname+"'s defense rose by 1 stage!");
+							if(playerState.defStage==7)
+							{
+								playerState.defStage=6;
+								print("Although it maxed out at 6!");
+							}
+							notifyUseItem(true);
+							break;
+						case "X Special Attack":
+							playerState.spatkStage++;
+							print(playerState.monster.nickname+"'s special attack rose by 1 stage!");
+							if(playerState.spatkStage==7)
+							{
+								playerState.spatkStage=6;
+								print("Although it maxed out at 6!");
+							}
+							notifyUseItem(true);
+							break;
+						case "X Special Defend":
+							playerState.spdefStage++;
+							print(playerState.monster.nickname+"'s special defense rose by 1 stage!");
+							if(playerState.spdefStage==7)
+							{
+								playerState.spdefStage=6;
+								print("Although it maxed out at 6!");
+							}
+							notifyUseItem(true);
+							break;
+						case "X Speed":
+							playerState.spdStage++;
+							print(playerState.monster.nickname+"'s speed rose by 1 stage!");
+							if(playerState.spdStage==7)
+							{
+								playerState.spdStage=6;
+								print("Although it maxed out at 6!");
+							}
+							notifyUseItem(true);
+							break;
+						case "Dire Hit":
+							playerState.critMul*=4;
+							print(playerState.monster.nickname+" is now 4 times more likely to get a critical hit!");
+							notifyUseItem(true);
+							break;
+						case "Guard Spec.":
+							print(playerState.monster.nickname+"'s stats cannot be lowered!");
+							if(playerState.canLower)
+								playerState.canLower=false;
+							else
+								print("Although they already could not be lowered!");
+							notifyUseItem(true);
+							break;
+						case "Poke Doll":
+							battling=false;
+							print("You got away successfully!");
+							notifyUseItem(true);
+							break;
+						case "PokeBall":
+							catchMon(1);
+							break;
+						case "Great Ball":
+							catchMon(1.5);
+							break;
+						case "Ultra Ball":
+							catchMon(2);
+							break;
+						case "Master Ball":
+							catchMon(100000);
+							break;
+						case "Repel":
+							useRepel(101);
+							break;
+						case "Super Repel":
+							useRepel(201);
+							break;
+						case "Max Repel":
+							useRepel(251);
+							break;
+						case "Escape Rope":
+							loadMap(lastHeal);
+							playerX=lastHeal.healX;
+							playerY=lastHeal.healY;
+							closeMenus();
+							print("You climbed back to the last heal spot!");
+							player.use(usedItem);
+							break;
+						case "Old Rod":
+						case "Good Rod":
+						case "Super Rod":
+							inMenu=true;
+							String n=usedItem.name;
+							usedItem=null;
+							int nx = playerX, ny = playerY;
+							switch(facing) {
+								case SOUTH -> ny++;
+								case NORTH -> ny--;
+								case WEST  -> nx--;
+								case EAST  -> nx++;
+								default -> throw new RuntimeException("WHERE AM I LOOKING?!"+facing);
+							}
+							if(nx < 0 || ny < 0 || ny >= currentMap.length || nx >= currentMap[0].length)
+							{
+								print("What exactly do you expect to find in the void?");
+								return;
+							}
+							if(tileTypes[ny][nx]!=4)
+							{
+								print("Maybe I should fish in the water...");
+								return;
+							}
+							wildMon=pm.getRandomEncounter(n);
+							if(wildMon==null)
+							{
+								print("Huh, no fish... I should try somewhere else!");
+								return;
+							}
+							closeMenus();
+							new SwingWorker<Integer, Void>() {
+								@Override protected Integer doInBackground() {
+									add(battleInfo);
+									return BattleState.wildBattle(player.team, wildMon, OverworldGui.this); // <-- runs in background
+								}
+								@Override protected void done() {
+									try {
+										int result = get(); // <-- retrieve what doInBackground() returned
+										if(result<0)
+											blackout();
+										else
+											player.money+=result*(player.hasItem(AMULET_COIN)?2:1);
+										remove(battleInfo);
+										battling=false;
+									} catch (Exception e) {
+										e.printStackTrace();
+										System.exit(1);
+									}
+								}
+							}.execute();
+							return;
+						default:
+							inMenu=true;
+							longArr=Battler.partyStrings(player.team);
+					}
+				}
+				else if(chosenMon==null)
+				{
+					if(clickedChoice<0||clickedChoice>=player.team.length)
+						return;
+					closeMenus();
+					Battler b=player.team[clickedChoice];
+					switch(usedItem.name)
+					{
+						case "Antidote":
+							healStatus(b, "POISONED");
+							break;
+						case "Awakening":
+							healStatus(b, "ASLEEP");
+							break;
+						case "Burn Heal":
+							healStatus(b, "BURNED");
+							break;
+						case "Ice Heal":
+							healStatus(b, "FROZEN");
+							break;
+						case "Paralyze Heal":
+							healStatus(b, "PARALYZED");
+							break;
+						case "Elixir":
+							useElixir(b, 10);
+							break;
+						case "Max Elixir":
+							useElixir(b, 99);
+							break;
+						case "Fire Stone":
+						case "Leaf Stone":
+						case "Moon Stone":
+						case "Thunder Stone":
+						case "Water Stone":
+							if(b.useStone(usedItem.name))
+							{
+								player.use(usedItem);
+								player.register(b);
+							}
+							break;
+						case "Full Restore":
+							b.hp=b.mhp;
+							print(b.nickname+"'s HP was fully restored!");
+						case "Full Heal":
+							if(playerState!=null&&playerState.monster==b)
+								playerState.cTurns=0;
+							healStatus(b, b.status);
+							break;
+						case "Fresh Water":
+							healHp(b, 50);
+							break;
+						case "Lemonade":
+							healHp(b, 80);
+							break;
+						case "Soda Pop":
+							healHp(b, 60);
+							break;
+						case "Potion":
+							healHp(b, 20);
+							break;
+						case "Super Potion":
+							healHp(b, 50);
+							break;
+						case "Hyper Potion":
+							healHp(b, 200);
+							break;
+						case "Max Potion":
+							healHp(b, 999);
+							break;
+						case "Revive":
+							useRevive(b, b.mhp/2);
+							break;
+						case "Max Revive":
+							useRevive(b, b.mhp);
+							break;
+						case "Calcium":
+							b.spatkXp+=10;
+							player.use(usedItem);
+							print(b.nickname+" gained special attack experience!");
+							break;
+						case "Carbos":
+							b.spdXp+=10;
+							player.use(usedItem);
+							print(b.nickname+" gained speed experience!");
+							break;
+						case "HP Up":
+							b.hpXp+=10;
+							player.use(usedItem);
+							print(b.nickname+" gained HP experience!");
+							break;
+						case "Iron":
+							b.defXp+=10;
+							player.use(usedItem);
+							print(b.nickname+" gained defense experience!");
+							break;
+						case "Protein":
+							b.atkXp+=10;
+							player.use(usedItem);
+							print(b.nickname+" gained attack experience!");
+							break;
+						case "Zinc":
+							b.spdefXp+=10;
+							player.use(usedItem);
+							print(b.nickname+" gained special defense experience!");
+							break;
+						case "Rare Candy":
+							player.use(usedItem);
+							rareCandy=true;
+							new Thread(() -> {
+								b.gainXp(player, b.moves, b.mxp-b.xpNeeded(b.level), 0, 0, 0, 0, 0, 0);
+								rareCandy=false;
+							}).start();
+							break;
+						default:
+							inMenu=true;
+							chosenMon=b;
+							longArr=chosenMon.moveStrings();
+							return;
+					}
+					usedItem=null;
+					return;
+				}
+				else if(usedItem!=null)
+				{
+					if(clickedChoice<0||clickedChoice>=chosenMon.moves.length)
+						return;
+					Move move=chosenMon.moves[clickedChoice];
+					if(move==null)
+						return;
+					switch(usedItem.name)
+					{
+						case "Ether":
+							if(chosenMon.pp[clickedChoice]==chosenMon.moves[clickedChoice].pp)
+							{
+								print("DO NOT WASTE THAT!");
+								notifyUseItem(false);
+								break;
+							}
+							chosenMon.pp[clickedChoice]=Math.min(chosenMon.moves[clickedChoice].pp, chosenMon.pp[clickedChoice]+10);
+							print(move.name+"'s PP was restored by 10!");
+							notifyUseItem(true);
+							break;
+						case "Max Ether":
+							if(chosenMon.pp[clickedChoice]==chosenMon.moves[clickedChoice].pp)
+							{
+								print("DO NOT WASTE THAT!");
+								notifyUseItem(false);
+								break;
+							}
+							chosenMon.pp[clickedChoice]=chosenMon.moves[clickedChoice].pp;
+							print(move.name+"'s PP was fully restored!");
+							notifyUseItem(true);
+							break;
+						case "PP Up":
+							chosenMon.pp[clickedChoice]=(int)(chosenMon.pp[clickedChoice]*1.2);
+							print(move+"'s PP was permanently increased!");
+							break;
+						default:
+							throw new RuntimeException(usedItem.name+" huh?");
+					}
+					usedItem=null;
+					chosenMon=null;
+					inMenu=false;
+					return;
+				}
+			}
+		else
+			synchronized (choiceLock) {
+				clickedChoice = (mouseY-540)/25;
+				choiceLock.notify();
+			}
+	}
     private void setupKeyBindings() {
         InputMap inputMap = getInputMap(WHEN_IN_FOCUSED_WINDOW);
         ActionMap actionMap = getActionMap();
@@ -303,15 +979,17 @@ public class OverworldGui extends JPanel {
         inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_T, 0, false), "showTms");
         inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_M, 0, false), "showMap");
         inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_X, 0, false), "showDex");
+        inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0, false), "holdMouse");
         inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0, false), "save");
         inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0, false), "shiftUp");
         inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0, false), "swapTwo");
         inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0, false), "prevBox");
         inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0, false), "nextBox");
-        inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_W, 0, true), "stop");
-        inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_A, 0, true), "stop");
-        inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_S, 0, true), "stop");
-        inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_D, 0, true), "stop");
+        inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_W, 0, true), "stopNorth");
+        inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_A, 0, true), "stopWest");
+        inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_S, 0, true), "stopSouth");
+        inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_D, 0, true), "stopEast");
+        inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0, true), "stopClicking");
 		//DVORAK
         inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_COMMA, 0, false), "moveNorth");
         inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_O, 0, false), "moveSouth");
@@ -320,15 +998,18 @@ public class OverworldGui extends JPanel {
         inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_L, 0, false), "showPokemon");
         inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_Y, 0, false), "showTms");
         inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_Q, 0, false), "showDex");
-        inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_COMMA, 0, true), "stop");
-        inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_O, 0, true), "stop");
-        inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_E, 0, true), "stop");
+        inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_COMMA, 0, true), "stopNorth");
+        inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_O, 0, true), "stopSouth");
+        inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_E, 0, true), "stopEast");
 
         actionMap.put("moveNorth", new MoveAction(Direction.NORTH, true));
         actionMap.put("moveSouth", new MoveAction(Direction.SOUTH, true));
         actionMap.put("moveWest", new MoveAction(Direction.WEST, true));
         actionMap.put("moveEast", new MoveAction(Direction.EAST, true));
-        actionMap.put("stop", new MoveAction(null, false));
+		actionMap.put("stopNorth", new MoveAction(Direction.NORTH, false));
+		actionMap.put("stopSouth", new MoveAction(Direction.SOUTH, false));
+		actionMap.put("stopWest", new MoveAction(Direction.WEST, false));
+		actionMap.put("stopEast", new MoveAction(Direction.EAST, false));
 		actionMap.put("openInventory", new AbstractAction() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -435,6 +1116,18 @@ public class OverworldGui extends JPanel {
 				choosingFromLongList=true;
 				showingDex=true;
 				inMenu=true;
+			}
+		});
+		actionMap.put("holdMouse", new AbstractAction() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				spaceHeld=true;
+			}
+		});
+		actionMap.put("stopClicking", new AbstractAction() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				spaceHeld=false;
 			}
 		});
 		actionMap.put("save", new AbstractAction() {
@@ -718,14 +1411,14 @@ public class OverworldGui extends JPanel {
 		});
 		addMouseListener(new MouseAdapter() {
 			@Override public void mousePressed(MouseEvent e) {
-				if(showingText)
-					if(printQ.isEmpty())
-						showingText = false;
-					else
-						currentText=printQ.pop();
-				else if(e.getButton() == MouseEvent.BUTTON3) {
+				if(e.getButton() == MouseEvent.BUTTON3) {
 					closeMenus();
-					if(usableItems==null)
+					if(showingText)
+						if(printQ.isEmpty())
+							showingText = false;
+						else
+							currentText=printQ.pop();
+					else if(usableItems==null)
 						synchronized(choiceLock) {
 							clickedChoice=0;
 							rightClicked=true;
@@ -736,669 +1429,11 @@ public class OverworldGui extends JPanel {
 						usableItems=null;
 						notifyUseItem(false);
 					}
-					inMenu=false;
+					return;
 				}
-				else if(pickingStarter)
-				{
-					pickingStarter=false;
-					int y=e.getY();
-					if(y<165)
-						return;
-					if(y<340)
-					{
-						int x=e.getX();
-						if(x>35&&x<175)
-							player.give(new Battler(1, Monster.MONSTER_MAP.get("Bulbasaur")));
-						else if(x>285&&x<440)
-							player.give(new Battler(1, Monster.MONSTER_MAP.get("Charmander")));
-						else if(x>540)
-							player.give(new Battler(1, Monster.MONSTER_MAP.get("Squirtle")));
-						else
-							pickingStarter=true;
-					}
-					else
-						switch((y-540)/25)
-						{
-							case 0:
-								player.give(new Battler(1, Monster.MONSTER_MAP.get("Bulbasaur")));
-								break;
-							case 1:
-								player.give(new Battler(1, Monster.MONSTER_MAP.get("Charmander")));
-								break;
-							case 2:
-								player.give(new Battler(1, Monster.MONSTER_MAP.get("Squirtle")));
-								break;
-							default:
-								pickingStarter=true;
-						}
-				}
-				else if(buySell)
-				{
-					clickedChoice = (e.getY()-540)/25;
-					if(clickedChoice==0)
-					{
-						buying=true;
-						buySell=false;
-						longArr=new String[martItems.length];
-						for(int i=0; i<longArr.length; i++)
-							longArr[i]=martItems[i].toString();
-						choosingFromLongList=true;
-					}
-					else if(clickedChoice==1)
-					{
-						selling=true;
-						buySell=false;
-						int n=0;
-						for(Item i: player.items)
-							if(i.price>0)
-								n++;
-						usableItems=new Item[n];
-						longArr=new String[n];
-						int i=0;
-						for(Item item: player.items)
-							if(item.price>0)
-							{
-								usableItems[i]=item;
-								longArr[i++]=item.name+" "+item.price/2;
-							}
-						choosingFromLongList=true;
-					}
-				}
-				else if(buying)
-				{
-					clickedChoice = (e.getY()-80)/25;
-					if(clickedChoice<0||clickedChoice>=martItems.length)
-						return;
-					MartItem mi=martItems[clickedChoice];
-					if(mi.item!=null)
-					{
-						String input = JOptionPane.showInputDialog("Enter a quantity to purchase:");
-						int q;
-						try {
-							q=Integer.parseInt(input);
-						} catch(Exception ex) {
-							print("Quit messing around over there!");
-							return;
-						}
-						if(q<1||q>99)
-						{
-							print("You can buy between 1 and 99 items.");
-							return;
-						}
-						int n=q*mi.price;
-						if(n>player.money)
-						{
-							print("You don't have the money for all of these!");
-							return;
-						}
-						player.money-=n;
-						player.give(mi.item, q);
-						print("Thank you!");
-					}
-					else
-					{
-						if(player.money<mi.price)
-						{
-							print("You don't have the money for this!");
-							return;
-						}
-						if(mi.mon==null)
-						{
-							if(player.give(mi.move))
-								player.money-=mi.price;
-						}
-						else
-						{
-							player.money-=mi.price;
-							player.give(new Battler(1, mi.mon));
-						}
-					}
-				}
-				else if(selling)
-				{
-					clickedChoice = (e.getY()-80)/25;
-					if(clickedChoice<0||clickedChoice>=usableItems.length)
-						return;
-					String input = JOptionPane.showInputDialog("Enter a quantity to sell:");
-					int q;
-					try {
-						q=Integer.parseInt(input);
-					} catch(Exception ex) {
-						print("Quit messing around over there!");
-						return;
-					}
-					if(q<1)
-					{
-						print("Hey come on, be serious!");
-						return;
-					}
-					player.sell(usableItems[clickedChoice], q);
-					buySell=true;
-					selling=false;
-					choosingFromLongList=false;
-					print("Thank you!");
-				}
-				else if(checkingPokes)
-				{
-					clickedChoice = (e.getY()-80)/25;
-					if(clickedChoice<0||clickedChoice>=player.team.length)
-						return;
-					if(player.team[clickedChoice]!=null)
-					{
-						longArr=player.team[clickedChoice].allInformation();
-						checkingPokes=false;
-						checkingMoves=true;
-					}
-				}
-				else if(checkingMoves)
-				{
-					longArr=Battler.partyStrings(player.team);
-					checkingPokes=true;
-					checkingMoves=false;
-				}
-				else if(checkingTms)
-				{
-					clickedChoice=(e.getY()-80)/25;
-					if(clickedChoice<0||clickedChoice>=tms.length)
-						return;
-					tm=tms[clickedChoice];
-					checkingTms=false;
-					teachingMove=true;
-					strArr[0]=null;
-					longArr=Battler.partyStrings(player.team);
-				}
-				else if(teachingMove)
-				{
-					if(strArr[0]==null)
-					{
-						clickedChoice = (e.getY()-80)/25;
-						if(clickedChoice<0||clickedChoice>=player.team.length||player.team[clickedChoice]==null)
-							return;
-						chosenMon=player.team[clickedChoice];
-						if(Monster.MONSTERS[chosenMon.dexNum].learnable.contains(tm))
-						{
-							for(int i=0; i<chosenMon.moves.length; i++)
-								if(chosenMon.moves[i]==null)
-								{
-									strArr[0]=null;
-									chosenMon.moves[i]=tm;
-									print(chosenMon.nickname+" learned "+tm.name+"!");
-									return;
-								}
-								else if(chosenMon.moves[i]==tm)
-								{
-									strArr[0]=null;
-									OverworldGui.print(chosenMon.nickname+" already knows "+tm.name+"!");
-									return;
-								}
-								else
-									strArr[i]=chosenMon.moves[i].name;
-							print(chosenMon.nickname+" is trying to learn "+tm.name+"! Select a move to replace it with.");
-						}
-						else
-							print(chosenMon.nickname+" cannot learn "+tm.name+".");
-					}
-					else
-					{
-						clickedChoice=(e.getY()-540)/25;
-						if(clickedChoice<0||clickedChoice>=chosenMon.moves.length)
-							return;
-						while(clickedChoice>1&&chosenMon.moves[clickedChoice-1]==null)
-							clickedChoice--;
-						if(chosenMon.moves[clickedChoice]!=null)
-							print(chosenMon.nickname+" forgot how to use "+chosenMon.moves[clickedChoice].name+", but...");
-						chosenMon.moves[clickedChoice]=tm;
-						strArr[0]=null;
-						chosenMon.pp[clickedChoice]=Math.min(chosenMon.pp[clickedChoice], tm.pp);
-						print(chosenMon.nickname+" learned "+tm.name+"!");
-					}
-				}
-				else if(depWith)
-				{
-					clickedChoice=(e.getY()-540)/25;
-					if(clickedChoice==0)
-					{
-						depositing=true;
-						depWith=false;
-						longArr=Battler.partyStrings(player.team);
-						choosingFromLongList=true;
-					}
-					else if(clickedChoice==1)
-					{
-						withdraw=true;
-						depWith=false;
-						longArr=new String[20];
-						int n=Math.min(20, player.pc.size());
-						for(int i=0; i<n; i++)
-							longArr[i]=player.pc.get(i).toString();
-						for(int i=n; i<20; i++)
-							longArr[i]="";
-						psi=0;
-						boxNum=1;
-						choosingFromLongList=true;
-					}
-				}
-				else if(depositing)
-				{
-					clickedChoice = (e.getY()-80)/25;
-					if(clickedChoice<0||clickedChoice>=player.team.length||player.team[clickedChoice]==null)
-						return;
-					if(player.team[1]==null)
-					{
-						depositing=false;
-						depWith=true;
-						choosingFromLongList=false;
-						print("No, you'll never survive in this world without pokemon!");
-						return;
-					}
-					print("You deposited "+player.team[clickedChoice].nickname+"!");
-					player.pc.add(player.team[clickedChoice]);
-					for(int i=clickedChoice+1; i<player.team.length; i++)
-					{
-						player.team[i-1]=player.team[i];
-						longArr[i-1]=longArr[i];
-					}
-					player.team[5]=null;
-					longArr[5]="";
-				}
-				else if(withdraw)
-				{
-					clickedChoice=(e.getY()-80)/25;
-					if(clickedChoice<0||clickedChoice>19)
-						return;
-					int ind=clickedChoice+psi;
-					if(ind>=player.pc.size())
-						return;
-					for(int i=1; i<player.team.length; i++)
-						if(player.team[i]==null)
-						{
-							player.team[i]=player.pc.remove(ind);
-							for(int j=clickedChoice; j<19;)
-								longArr[j]=longArr[++j];
-							ind=psi+19;
-							if(ind<player.pc.size())
-								longArr[19]=player.pc.get(ind).toString();
-							print("You withdrew "+player.team[i].nickname+"!");
-							return;
-						}
-					withdraw=false;
-					depWith=true;
-					choosingFromLongList=false;
-					print("Hey, you already have 6 pokemon with you! Don't be greedy.");
-				}
-				else if(flying)
-				{
-					String n=FlyLocation.NAME_MAP[e.getY()/64][e.getX()/64];
-					if(n==null)
-						return;
-					String p=printable(n);
-					if(inside||!p.equals(currentLoc)||!player.leadersBeaten[2]||!player.hasMove(FLY))
-					{
-						currentLoc=p;
-						return;
-					}
-					FlyLocation f=FlyLocation.FLY_LOCATIONS.get(n);
-					if(f==null)
-						return;
-					loadMap(f.dest);
-					playerX=f.x;
-					playerY=f.y;
-					inMenu=false;
-					flying=false;
-					print("You flew to "+p+"!");
-				}
-				else if(!showingDex&&choosingFromLongList)
-					if(usableItems==null)
-						synchronized (choiceLock) {
-							clickedChoice = (e.getY()-80)/25;
-							choiceLock.notify();
-						}
-					else
-					{
-						clickedChoice = (e.getY()-80)/25;
-						if(usedItem==null)
-						{
-							if(clickedChoice<0||clickedChoice>=usableItems.length)
-								return;
-							inMenu=false;
-							usedItem=usableItems[clickedChoice];
-							switch(usedItem.name)
-							{
-								case "X Accuracy":
-									playerState.accStage++;
-									print(playerState.monster.nickname+"'s accuracy rose by 1 stage!");
-									if(playerState.accStage==7)
-									{
-										playerState.accStage=6;
-										print("Although it maxed out at 6!");
-									}
-									notifyUseItem(true);
-									break;
-								case "X Attack":
-									playerState.atkStage++;
-									print(playerState.monster.nickname+"'s attack rose by 1 stage!");
-									if(playerState.atkStage==7)
-									{
-										playerState.atkStage=6;
-										print("Although it maxed out at 6!");
-									}
-									notifyUseItem(true);
-									break;
-								case "X Defend":
-									playerState.defStage++;
-									print(playerState.monster.nickname+"'s defense rose by 1 stage!");
-									if(playerState.defStage==7)
-									{
-										playerState.defStage=6;
-										print("Although it maxed out at 6!");
-									}
-									notifyUseItem(true);
-									break;
-								case "X Special Attack":
-									playerState.spatkStage++;
-									print(playerState.monster.nickname+"'s special attack rose by 1 stage!");
-									if(playerState.spatkStage==7)
-									{
-										playerState.spatkStage=6;
-										print("Although it maxed out at 6!");
-									}
-									notifyUseItem(true);
-									break;
-								case "X Special Defend":
-									playerState.spdefStage++;
-									print(playerState.monster.nickname+"'s special defense rose by 1 stage!");
-									if(playerState.spdefStage==7)
-									{
-										playerState.spdefStage=6;
-										print("Although it maxed out at 6!");
-									}
-									notifyUseItem(true);
-									break;
-								case "X Speed":
-									playerState.spdStage++;
-									print(playerState.monster.nickname+"'s speed rose by 1 stage!");
-									if(playerState.spdStage==7)
-									{
-										playerState.spdStage=6;
-										print("Although it maxed out at 6!");
-									}
-									notifyUseItem(true);
-									break;
-								case "Dire Hit":
-									playerState.critMul*=4;
-									print(playerState.monster.nickname+" is now 4 times more likely to get a critical hit!");
-									notifyUseItem(true);
-									break;
-								case "Guard Spec.":
-									print(playerState.monster.nickname+"'s stats cannot be lowered!");
-									if(playerState.canLower)
-										playerState.canLower=false;
-									else
-										print("Although they already could not be lowered!");
-									notifyUseItem(true);
-									break;
-								case "Poke Doll":
-									battling=false;
-									print("You got away successfully!");
-									notifyUseItem(true);
-									break;
-								case "PokeBall":
-									catchMon(1);
-									break;
-								case "Great Ball":
-									catchMon(1.5);
-									break;
-								case "Ultra Ball":
-									catchMon(2);
-									break;
-								case "Master Ball":
-									catchMon(100000);
-									break;
-								case "Repel":
-									useRepel(101);
-									break;
-								case "Super Repel":
-									useRepel(201);
-									break;
-								case "Max Repel":
-									useRepel(251);
-									break;
-								case "Escape Rope":
-									loadMap(lastHeal);
-									playerX=lastHeal.healX;
-									playerY=lastHeal.healY;
-									closeMenus();
-									print("You climbed back to the last heal spot!");
-									player.use(usedItem);
-									break;
-								case "Old Rod":
-								case "Good Rod":
-								case "Super Rod":
-									inMenu=true;
-									String n=usedItem.name;
-									usedItem=null;
-									int nx = playerX, ny = playerY;
-									switch(facing) {
-										case SOUTH -> ny++;
-										case NORTH -> ny--;
-										case WEST  -> nx--;
-										case EAST  -> nx++;
-										default -> throw new RuntimeException("WHERE AM I LOOKING?!"+facing);
-									}
-									if(nx < 0 || ny < 0 || ny >= currentMap.length || nx >= currentMap[0].length)
-									{
-										print("What exactly do you expect to find in the void?");
-										return;
-									}
-									if(tileTypes[ny][nx]!=4)
-									{
-										print("Maybe I should fish in the water...");
-										return;
-									}
-									wildMon=pm.getRandomEncounter(n);
-									if(wildMon==null)
-									{
-										print("Huh, no fish... I should try somewhere else!");
-										return;
-									}
-									closeMenus();
-									new SwingWorker<Integer, Void>() {
-										@Override protected Integer doInBackground() {
-											add(battleInfo);
-											return BattleState.wildBattle(player.team, wildMon, OverworldGui.this); // <-- runs in background
-										}
-										@Override protected void done() {
-											try {
-												int result = get(); // <-- retrieve what doInBackground() returned
-												if(result<0)
-													blackout();
-												else
-													player.money+=result*(player.hasItem(AMULET_COIN)?2:1);
-												remove(battleInfo);
-												battling=false;
-											} catch (Exception e) {
-												e.printStackTrace();
-												System.exit(1);
-											}
-										}
-									}.execute();
-									return;
-								default:
-									inMenu=true;
-									longArr=Battler.partyStrings(player.team);
-							}
-						}
-						else if(chosenMon==null)
-						{
-							if(clickedChoice<0||clickedChoice>=player.team.length)
-								return;
-							closeMenus();
-							Battler b=player.team[clickedChoice];
-							switch(usedItem.name)
-							{
-								case "Antidote":
-									healStatus(b, "POISONED");
-									break;
-								case "Awakening":
-									healStatus(b, "ASLEEP");
-									break;
-								case "Burn Heal":
-									healStatus(b, "BURNED");
-									break;
-								case "Ice Heal":
-									healStatus(b, "FROZEN");
-									break;
-								case "Paralyze Heal":
-									healStatus(b, "PARALYZED");
-									break;
-								case "Elixir":
-									useElixir(b, 10);
-									break;
-								case "Max Elixir":
-									useElixir(b, 99);
-									break;
-								case "Fire Stone":
-								case "Leaf Stone":
-								case "Moon Stone":
-								case "Thunder Stone":
-								case "Water Stone":
-									if(b.useStone(usedItem.name))
-									{
-										player.use(usedItem);
-										player.register(b);
-									}
-									break;
-								case "Full Restore":
-									b.hp=b.mhp;
-									print(b.nickname+"'s HP was fully restored!");
-								case "Full Heal":
-									if(playerState!=null&&playerState.monster==b)
-										playerState.cTurns=0;
-									healStatus(b, b.status);
-									break;
-								case "Fresh Water":
-									healHp(b, 50);
-									break;
-								case "Lemonade":
-									healHp(b, 80);
-									break;
-								case "Soda Pop":
-									healHp(b, 60);
-									break;
-								case "Potion":
-									healHp(b, 20);
-									break;
-								case "Super Potion":
-									healHp(b, 50);
-									break;
-								case "Hyper Potion":
-									healHp(b, 200);
-									break;
-								case "Max Potion":
-									healHp(b, 999);
-									break;
-								case "Revive":
-									useRevive(b, b.mhp/2);
-									break;
-								case "Max Revive":
-									useRevive(b, b.mhp);
-									break;
-								case "Calcium":
-									b.spatkXp+=10;
-									player.use(usedItem);
-									print(b.nickname+" gained special attack experience!");
-									break;
-								case "Carbos":
-									b.spdXp+=10;
-									player.use(usedItem);
-									print(b.nickname+" gained speed experience!");
-									break;
-								case "HP Up":
-									b.hpXp+=10;
-									player.use(usedItem);
-									print(b.nickname+" gained HP experience!");
-									break;
-								case "Iron":
-									b.defXp+=10;
-									player.use(usedItem);
-									print(b.nickname+" gained defense experience!");
-									break;
-								case "Protein":
-									b.atkXp+=10;
-									player.use(usedItem);
-									print(b.nickname+" gained attack experience!");
-									break;
-								case "Zinc":
-									b.spdefXp+=10;
-									player.use(usedItem);
-									print(b.nickname+" gained special defense experience!");
-									break;
-								case "Rare Candy":
-									player.use(usedItem);
-									rareCandy=true;
-									new Thread(() -> {
-										b.gainXp(player, b.moves, b.mxp-b.xpNeeded(b.level), 0, 0, 0, 0, 0, 0);
-										rareCandy=false;
-									}).start();
-									break;
-								default:
-									inMenu=true;
-									chosenMon=b;
-									longArr=chosenMon.moveStrings();
-									return;
-							}
-							usedItem=null;
-							return;
-						}
-						else if(usedItem!=null)
-						{
-							if(clickedChoice<0||clickedChoice>=chosenMon.moves.length)
-								return;
-							Move move=chosenMon.moves[clickedChoice];
-							if(move==null)
-								return;
-							switch(usedItem.name)
-							{
-								case "Ether":
-									if(chosenMon.pp[clickedChoice]==chosenMon.moves[clickedChoice].pp)
-									{
-										print("DO NOT WASTE THAT!");
-										notifyUseItem(false);
-										break;
-									}
-									chosenMon.pp[clickedChoice]=Math.min(chosenMon.moves[clickedChoice].pp, chosenMon.pp[clickedChoice]+10);
-									print(move.name+"'s PP was restored by 10!");
-									notifyUseItem(true);
-									break;
-								case "Max Ether":
-									if(chosenMon.pp[clickedChoice]==chosenMon.moves[clickedChoice].pp)
-									{
-										print("DO NOT WASTE THAT!");
-										notifyUseItem(false);
-										break;
-									}
-									chosenMon.pp[clickedChoice]=chosenMon.moves[clickedChoice].pp;
-									print(move.name+"'s PP was fully restored!");
-									notifyUseItem(true);
-									break;
-								case "PP Up":
-									chosenMon.pp[clickedChoice]=(int)(chosenMon.pp[clickedChoice]*1.2);
-									print(move+"'s PP was permanently increased!");
-									break;
-								default:
-									throw new RuntimeException(usedItem.name+" huh?");
-							}
-							usedItem=null;
-							chosenMon=null;
-							inMenu=false;
-							return;
-						}
-					}
-				else
-                    synchronized (choiceLock) {
-                        clickedChoice = (e.getY()-540)/25;
-                        choiceLock.notify();
-                    }
+				mouseX=e.getX();
+				mouseY=e.getY();
+				clickMouse();
 			}
 		});
     }
@@ -1535,20 +1570,31 @@ public class OverworldGui extends JPanel {
 		player.healTeam();
 		print("You dropped $"+n+"!");
 	}
-    private class MoveAction extends AbstractAction {
-        private final Direction dir;
-        private final boolean pressed;
+	private final LinkedHashSet<Direction> pressedKeys = new LinkedHashSet<>();
 
-        public MoveAction(Direction dir, boolean pressed) {
-            this.dir = dir;
-            this.pressed = pressed;
-        }
+	private class MoveAction extends AbstractAction {
+		private final Direction dir;
+		private final boolean pressed;
 
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            heldDirection = pressed ? dir : null;
-        }
-    }
+		public MoveAction(Direction dir, boolean pressed) {
+			this.dir = dir;
+			this.pressed = pressed;
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if (pressed) {
+				pressedKeys.add(dir);
+				heldDirection = dir; // latest key pressed takes priority
+			} else {
+				pressedKeys.remove(dir);
+				if (heldDirection == dir) {
+					// assign the most recently pressed remaining key, if any
+					heldDirection = pressedKeys.isEmpty() ? null : pressedKeys.iterator().next();
+				}
+			}
+		}
+	}
 
     private void update() {
 		if(showingText||battling||buySell||buying||selling||inMenu)
@@ -1560,7 +1606,7 @@ public class OverworldGui extends JPanel {
 		}
         if (stepPhase == StepPhase.NONE && heldDirection != null) {
 			facing = heldDirection;
-            currentStepFrames = canMove(facing) ? 8 : BUMP_STEP_FRAMES;
+            currentStepFrames = canMove(facing) ? NUM_STEP_FRAMES : BUMP_STEP_FRAMES;
             stepPhase = StepPhase.MOVING;
             phaseFrame = 0;
         }
@@ -1950,6 +1996,11 @@ public class OverworldGui extends JPanel {
 				repelSteps=Math.max(0, repelSteps-1);
 				switch(tileTypes[nextY][nextX])
 				{
+					case 1:
+						surfing=false;
+						playerX=nextX;
+						playerY=nextY;
+						break;
 					case 7:
 						if(pm.grid[nextY][nextX]==182)
 						{
@@ -1978,6 +2029,7 @@ public class OverworldGui extends JPanel {
 						}
 						break;
 					case 4:
+						surfing=true;
 						playerX = nextX;
 						playerY = nextY;
 						if(Math.random()<0.1)
@@ -2349,7 +2401,7 @@ public class OverworldGui extends JPanel {
         int frame = getCurrentFrame();
         int drawX = getWidth() / 2 - TILE_SIZE / 2;
         int drawY = getHeight() / 2 - TILE_SIZE / 2;
-        g.drawImage(playerFrames[frame], drawX, drawY, null);
+        g.drawImage(surfing?seel[frame]:playerFrames[frame], drawX, drawY, null);
 		if(battling)
 		{
 			if(playerState.monster.dexNum==0)
