@@ -1,0 +1,7 @@
+nonsense/
+out/
+src/main/resources/battlers
+src/main/resources/sprites
+src/main/resources/tiles
+*.ttf
+save.txt
