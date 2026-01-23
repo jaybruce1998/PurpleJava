@@ -26,7 +26,7 @@ public class OverworldGui extends JPanel {
     static final int DISPLAY_H = 11; // how many tiles vertically to draw
 	static final Item FAKE_ID=Item.ITEM_MAP.get("Fake ID");
 	static final Item LIFT_KEY=Item.ITEM_MAP.get("Lift Key");
-	static boolean showingText, battling, choosingFromLongList, usingBattleItem, busedItem, rightClicked, inMenu, buySell, buying, selling, checkingPokes, checkingMoves, checkingTms, teachingMove, depWith, depositing, withdraw, flying, inside, showingDex, rareCandy, pickingStarter, surfing;
+	static boolean showingText, battling, choosingFromLongList, usingBattleItem, busedItem, rightClicked, inMenu, buySell, buying, selling, checkingPokes, checkingMoves, checkingTms, teachingMove, depWith, depositing, withdraw, flying, inside, showingDex, rareCandy, pickingStarter, surfing, canSpace=true;
 	static String currentText, currentLoc;
 	private static final Deque<String> printQ=new ArrayDeque<>();
     static String mapName = "RedsHouse2F";
@@ -322,7 +322,7 @@ public class OverworldGui extends JPanel {
 				else
 					pickingStarter=true;
 			}
-			else
+			/*else
 				switch((y-540)/25)
 				{
 					case 0:
@@ -336,7 +336,7 @@ public class OverworldGui extends JPanel {
 						break;
 					default:
 						pickingStarter=true;
-				}
+				}*/
 		}
 		else if(buySell)
 		{
@@ -1121,7 +1121,7 @@ public class OverworldGui extends JPanel {
 		actionMap.put("holdMouse", new AbstractAction() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				spaceHeld=true;
+				spaceHeld=canSpace;
 			}
 		});
 		actionMap.put("stopClicking", new AbstractAction() {
@@ -1599,7 +1599,7 @@ public class OverworldGui extends JPanel {
     private void update() {
 		if(showingText||battling||buySell||buying||selling||inMenu)
 			return;
-		if(spinning)
+		if(spinning||jumping)
 		{
 			advanceStep();
 			return;
@@ -1627,7 +1627,7 @@ public class OverworldGui extends JPanel {
 			// Clean up any double spaces that might have been created
 			.replaceAll(" +", " ");
 	}
-	boolean switchingMaps=false, spinning=false;
+	boolean switchingMaps=false, spinning=false, jumping=false;
     private boolean canMove(Direction d) {
 		if(switchingMaps)
 			return true;
@@ -1915,6 +1915,7 @@ public class OverworldGui extends JPanel {
 		}
 		phaseFrame++;
 		if (phaseFrame >= currentStepFrames) {
+			jumping=false;
 			switchingMaps=false;
 			phaseFrame = 0;
 			stepPhase = StepPhase.NONE;
@@ -2159,6 +2160,10 @@ public class OverworldGui extends JPanel {
 					case 17:
 						facing=Direction.SOUTH;
 						spinning=true;
+					case 5:
+					case 10:
+					case 11:
+						jumping=true;
 					default:
 						playerX = nextX;
 						playerY = nextY;
@@ -2277,14 +2282,7 @@ public class OverworldGui extends JPanel {
 		Graphics2D g2=(Graphics2D)g;
 		if(pickingStarter)
 		{
-			if(showingText)
-				drawTextBox(g, currentText);
-			else
-			{
-				drawTextBox(g, "Bulbasaur");
-				drawWrappedText(g2, "Charmander", 60, getHeight()-140+25, getWidth()-120);
-				drawWrappedText(g2, "Squirtle", 60, getHeight()-140+50, getWidth()-120);
-			}
+			drawTextBox(g, "Which starter will you choose?");
 			g.drawImage(pBattlers[1], -20, 128, null);
 			g.drawImage(pBattlers[4], 236, 128, null);
 			g.drawImage(pBattlers[7], 492, 128, null);
@@ -2553,7 +2551,6 @@ public class OverworldGui extends JPanel {
             frame.setLocationRelativeTo(null);
             frame.setVisible(true);
             viewer.requestFocusInWindow();
-			viewer.print("And which starter will you choose?");
         });
     }
 

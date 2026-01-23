@@ -52,7 +52,8 @@ SilphCo10F;POKE_BALL 2 12,Move=Earthquake;POKE_BALL 4 14,Rare Candy;POKE_BALL 5 
 VictoryRoad2F;POKE_BALL 27 5,Guard Spec.;POKE_BALL 18 9,Move=Mega Kick;POKE_BALL 9 11,Move=Submission;POKE_BALL 11 0,Full Heal
 VictoryRoad3F;POKE_BALL 26 5,Move=Explosion;POKE_BALL 7 7,Max Revive
 WardensHouse;POKE_BALL 8 3 DOWN,Rare Candy
-ViridianGym;POKE_BALL 16 9 DOWN,Revive""".split("\n");
+ViridianGym;POKE_BALL 16 9 DOWN,Revive
+Route21;POKE_BALL 3 0 DOWN,Max Revive""".split("\n");
 	static Map<String, BufferedImage> ITEM_SPRITES=new HashMap<>();
 	static String[] ENCOUNTER_STRINGS="""
 Route12;SNORLAX 10 62,Pokemon=30 Snorlax
