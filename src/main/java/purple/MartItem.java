@@ -17,7 +17,7 @@ CeladonMart2F,3 3,Great Ball,Super Potion,Revive,Super Repel,Antidote,Burn Heal,
 CeladonMart2F,5 5,Great Ball,Super Potion,Revive,Super Repel,Antidote,Burn Heal,Ice Heal,Awakening,Paralyze Heal
 CeladonMart2F,6 5,Move=Double Team 1000,Move=Reflect 1000,Move=Razor Wind 2000,Move=Horn Drill 2000,Move=Egg Bomb 2000,Move=Mega Punch 3000,Move=Mega Kick 3000,Move=Take Down 3000,Move=Submission 3000
 CeladonMart2F,8 3,Move=Double Team 1000,Move=Reflect 1000,Move=Razor Wind 2000,Move=Horn Drill 2000,Move=Egg Bomb 2000,Move=Mega Punch 3000,Move=Mega Kick 3000,Move=Take Down 3000,Move=Submission 3000
-CeladonMart4F,5 5,Pokedoll,Fire Stone,Thunder Stone,Water Stone,Leaf Stone
+CeladonMart4F,5 5,Pokedoll,Fire Stone,Thunder Stone,Water Stone,Leaf Stone,Moon Stone
 CeladonMart5F,3 3,X Accuracy,Guard Spec.,Dire Hit,X Attack,X Defend,X Speed,X Special Attack,X Special Defend
 CeladonMart5F,5 5,X Accuracy,Guard Spec.,Dire Hit,X Attack,X Defend,X Speed,X Special Attack,X Special Defend
 CeladonMart5F,6 5,HP Up,Protein,Iron,Carbos,Calcium,Zinc
@@ -34,8 +34,8 @@ FuchsiaMart,2 5,Ultra Ball,Great Ball,Super Potion,Revive,Full Heal,Super Repel,
 FuchsiaMart,0 7,Ultra Ball,Great Ball,Super Potion,Revive,Full Heal,Super Repel,Move=Big Money 2500
 CinnabarMart,2 5,Ultra Ball,Great Ball,Hyper Potion,Max Repel,Escape Rope,Full Heal,Revive
 CinnabarMart,0 7,Ultra Ball,Great Ball,Hyper Potion,Max Repel,Escape Rope,Full Heal,Revive
-IndigoPlateauLobby,2 5,Ultra Ball,Great Ball,Full Restore,Max Potion,Full Heal,Revive,Max Repel
-IndigoPlateauLobby,0 7,Ultra Ball,Great Ball,Full Restore,Max Potion,Full Heal,Revive,Max Repel""".split("\n");
+IndigoPlateauLobby,2 5,Ultra Ball,Great Ball,Full Restore,Max Potion,Full Heal,Revive,Max Repel,PP Up
+IndigoPlateauLobby,0 7,Ultra Ball,Great Ball,Full Restore,Max Potion,Full Heal,Revive,Max Repel,Rare Candy""".split("\n");
 	public static void buildMartItems()
 	{
 		for(String s: MART_ITEM_STRINGS)

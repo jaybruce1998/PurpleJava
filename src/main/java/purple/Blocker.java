@@ -43,7 +43,7 @@ Route23;GUARD 9 119 DOWN,null;2
 Route23;GUARD 8 136 DOWN,null;1
 CinnabarIsland;GAMBLER_ASLEEP 6 4 DOWN,null;5
 CeruleanCity;SUPER_NERD 4 12 DOWN,null;8
-FuchsiaCity;OAK 13 7 DOWN,null;8""".split("\n");
+FuchsiaCity;OAK 13 6 DOWN,null;8""".split("\n");
 	static String[] BOULDER_STRINGS="""
 SeafoamIslands1F;BOULDER 18 10 DOWN,Move=Strength;BOULDER 26 7 DOWN,Move=Strength
 SeafoamIslandsB1F;BOULDER 17 6 DOWN,Move=Strength;BOULDER 22 6 DOWN,Move=Strength

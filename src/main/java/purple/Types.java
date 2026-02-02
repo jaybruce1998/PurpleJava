@@ -18,7 +18,7 @@ public class Types
 111111221151111
 151121521521151
 121112515212111
-011111111101121
+011111111121121
 111111111111112""".split("\n");
 	static Map<String, Integer> TYPE_MAP=new HashMap<>();
 	static double[][] TYPE_CHART=new double[TYPES.length][TYPES.length];

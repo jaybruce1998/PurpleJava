@@ -43,7 +43,7 @@ Max Ether,5000
 Max Potion,2500
 Max Repel,700
 Max Revive,10000
-Moon Stone,-1
+Moon Stone,8400
 Nugget,10000
 Oak's Parcel,-1
 Old Amber,-1
@@ -54,9 +54,9 @@ Pokedex,-1
 Pokedoll,1000
 Pokeflute,-1
 Potion,300
-PP Up,10000
+PP Up,100000
 Protein,9800
-Rare Candy,10000
+Rare Candy,100000
 Repel,350
 Revive,1500
 SS Ticket,-1

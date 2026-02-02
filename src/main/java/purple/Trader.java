@@ -250,7 +250,6 @@ Kanto is so much bigger than I thought.
 Make sure you're ready before heading north.
 I train here to build my endurance.
 Did you see the Power Plant nearby?
-Yes, I AM dancing because Matt is so cool!...Me? No, I'm not Matt in disguise! I just think I'm... uh, HE'S very cool!
 Route 4 has some sneaky wild Pokémon.
 Welcome aboard! Enjoy your trip.
 Let me tell you, all the passengers are LOADED with cash! You? Hmm...
@@ -353,17 +352,18 @@ I've heard a super strong trainer lives around here. I wonder where, though...
 Howdy, you must be new here! Don't talk to me, ever.
 ...are you sure? You are so weak. NOBODY can SAVE you down there.
 Yum yum, I'm the breeder! I'll borrow your pokemon to make more beautiful children with... just give me a second......
-Feeling trapped? Perhaps these lonely statues want to be talked to... make sure to look them in the eyes!""".split("\n");
+Feeling trapped? Perhaps these lonely statues want to be talked to... make sure to look them in the eyes!
+Yes, I AM dancing because Matt is so cool!...Me? No, I'm not Matt in disguise! I just think I'm... I mean, HE'S very cool!""".split("\n");
 	static String[] TRADER_STRINGS="""
-CeruleanTradeHouse;GRANNY 5 4 LEFT,null;Kadabra,Machamp
-CeruleanTradeHouse;GAMBLER 1 2 DOWN,null;Machoke,Golem
+CeruleanTradeHouse;GRANNY 5 4 LEFT,null;Kadabra,Golem
+CeruleanTradeHouse;GAMBLER 1 2 DOWN,null;Machoke,Alakazam
 CinnabarLabTradeRoom;SUPER_NERD 3 2 DOWN,Old Amber;null,Aerodactyl
 CinnabarLabTradeRoom;GRAMPS 1 4 DOWN,Dome Fossil;null,Kabuto
 CinnabarLabTradeRoom;BEAUTY 5 5 UP,Helix Fossil;null,Omanyte
 Route2TradeHouse;SCIENTIST 2 4 RIGHT,null;Kabutops,Omanyte
 Route2TradeHouse;GAMEBOY_KID 4 1 DOWN,null;Omastar,Kabuto
 VermilionTradeHouse;LITTLE_GIRL 3 5 UP,null;Graveler,Gengar
-VermilionPidgeyHouse;YOUNGSTER 5 3 LEFT,null;Haunter,Alakazam
+VermilionPidgeyHouse;YOUNGSTER 5 3 LEFT,null;Haunter,Machamp
 SilphCo5F;SILPH_WORKER_M 13 9 DOWN,Gold Teeth;null,Lapras
 SilphCo10F;SILPH_WORKER_F 9 15 DOWN,null;Venusaur,Charmander
 SaffronMart;SUPER_NERD 4 2 DOWN,null;Blastoise,Bulbasaur
@@ -423,11 +423,14 @@ PokemonFanClub;FAIRY 6 4 LEFT,null;Zapdos,Hitmonlee""".split("\n");
 		{
 			if(p.team[0].name.equals(monA))
 			{
-				p.team[0]=new Battler(1, monB);
+				for(int i=1; i<6; i++)
+					p.team[i-1]=p.team[i];
+				p.team[5]=null;
+				p.give(new Battler(1, monB));
 				OverworldGui.print("Yoink!");
 			}
 			else
-				OverworldGui.print("Don't talk to me unless you're leading with a "+monA+"!");
+				OverworldGui.print("Don't talk to me unless you're leading with "+monA+"!");
 		}
 		else if(p.hasItem(item))
 		{
@@ -436,6 +439,6 @@ PokemonFanClub;FAIRY 6 4 LEFT,null;Zapdos,Hitmonlee""".split("\n");
 			OverworldGui.print("Yoink!");
 		}
 		else
-			OverworldGui.print("Don't talk to me unless you have a "+item.name+"!");
+			OverworldGui.print("Don't talk to me unless you have "+item.name+"!");
 	}
 }

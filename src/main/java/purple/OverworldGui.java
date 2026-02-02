@@ -71,8 +71,9 @@ public class OverworldGui extends JPanel {
 	public final Player player;
 	private int bet=1;
 	private final JFrame frame;
-	private final BufferedImage[] DANCE_FRAMES=new BufferedImage[10], OAK_FRAMES=new BufferedImage[10], MONSTER_FRAMES[3];
-	private final Giver MATT=PokeMap.POKEMAPS.get("Route4").givers[3][63], OAK=PokeMap.POKEMAPS.get("FuschiaCity").givers[7][13], MONSTER=PokeMap.POKEMAPS.get("FuschiaCity").givers[6][13];
+	private final static BufferedImage[] DANCE_FRAMES=new BufferedImage[10], OAK_FRAMES=new BufferedImage[10], MONSTER_FRAMES=new BufferedImage[3];
+	private final Giver MATT=PokeMap.POKEMAPS.get("Route24").givers[0][19], OAK=PokeMap.POKEMAPS.get("FuchsiaCity").givers[6][13];
+	private final Trainer MONSTER=PokeMap.POKEMAPS.get("FuchsiaCity").trainers[5][13];
 	enum Direction {
 		SOUTH(0),
 		NORTH(1),
@@ -342,7 +343,7 @@ public class OverworldGui extends JPanel {
 		}
 		else if(buySell)
 		{
-			clickedChoice = (mouseY-540)/25;
+			clickedChoice = (mouseY-520)/25;
 			if(clickedChoice==0)
 			{
 				buying=true;
@@ -367,7 +368,7 @@ public class OverworldGui extends JPanel {
 					if(item.price>0)
 					{
 						usableItems[i]=item;
-						longArr[i++]=item.name+" "+item.price/2;
+						longArr[i++]=item.name+"x"+item.quantity+"   "+item.price/2;
 					}
 				choosingFromLongList=true;
 			}
@@ -508,7 +509,7 @@ public class OverworldGui extends JPanel {
 			}
 			else
 			{
-				clickedChoice=(mouseY-540)/25;
+				clickedChoice=(mouseY-520)/25;
 				if(clickedChoice<0||clickedChoice>=chosenMon.moves.length)
 					return;
 				while(clickedChoice>1&&chosenMon.moves[clickedChoice-1]==null)
@@ -523,7 +524,7 @@ public class OverworldGui extends JPanel {
 		}
 		else if(depWith)
 		{
-			clickedChoice=(mouseY-540)/25;
+			clickedChoice=(mouseY-520)/25;
 			if(clickedChoice==0)
 			{
 				depositing=true;
@@ -929,30 +930,31 @@ public class OverworldGui extends JPanel {
 					switch(usedItem.name)
 					{
 						case "Ether":
-							if(chosenMon.pp[clickedChoice]==chosenMon.moves[clickedChoice].pp)
+							if(chosenMon.pp[clickedChoice]==chosenMon.mpp[clickedChoice])
 							{
 								print("DO NOT WASTE THAT!");
 								notifyUseItem(false);
 								break;
 							}
-							chosenMon.pp[clickedChoice]=Math.min(chosenMon.moves[clickedChoice].pp, chosenMon.pp[clickedChoice]+10);
+							chosenMon.pp[clickedChoice]=Math.min(chosenMon.mpp[clickedChoice], chosenMon.pp[clickedChoice]+10);
 							print(move.name+"'s PP was restored by 10!");
 							notifyUseItem(true);
 							break;
 						case "Max Ether":
-							if(chosenMon.pp[clickedChoice]==chosenMon.moves[clickedChoice].pp)
+							if(chosenMon.pp[clickedChoice]==chosenMon.mpp[clickedChoice])
 							{
 								print("DO NOT WASTE THAT!");
 								notifyUseItem(false);
 								break;
 							}
-							chosenMon.pp[clickedChoice]=chosenMon.moves[clickedChoice].pp;
+							chosenMon.pp[clickedChoice]=chosenMon.mpp[clickedChoice];
 							print(move.name+"'s PP was fully restored!");
 							notifyUseItem(true);
 							break;
 						case "PP Up":
-							chosenMon.pp[clickedChoice]=(int)(chosenMon.pp[clickedChoice]*1.2);
-							print(move+"'s PP was permanently increased!");
+							chosenMon.mpp[clickedChoice]=(int)(chosenMon.mpp[clickedChoice]*1.2);
+							print(move.name+"'s PP was permanently increased!");
+							player.use(usedItem);
 							break;
 						default:
 							System.out.println(usedItem.name+" huh?");
@@ -961,14 +963,76 @@ public class OverworldGui extends JPanel {
 					usedItem=null;
 					chosenMon=null;
 					inMenu=false;
+					choosingFromLongList=false;
 					return;
 				}
 			}
 		else
 			synchronized (choiceLock) {
-				clickedChoice = (mouseY-540)/25;
+				clickedChoice = (mouseY-520)/25;
 				choiceLock.notify();
 			}
+	}
+	private void save()
+	{
+		StringBuilder sb=new StringBuilder(pm.name).append(',').append(playerX).append(',').append(playerY).append(',').append(facing.id).append(',').append(repelSteps).append(',').append(lastHeal.name)
+						.append(',').append(player.ballin?'1':'0').append(',').append(player.numCaught).append(',').append(player.money).append(',').append(player.name).append('\n');
+		if(player.pc.size()>0)
+		{
+			player.pc.get(0).append(sb);
+			for(int i=1; i<player.pc.size(); i++)
+				player.pc.get(i).append(sb.append(';'));
+		}
+		sb.append('\n');
+		player.team[0].append(sb);
+		for(int i=1; i<player.team.length; i++)
+			if(player.team[i]==null)
+				break;
+			else
+				player.team[i].append(sb.append(';'));
+		append(sb, player.trainersBeaten);
+		append(sb, player.leadersBeaten);
+		append(sb, player.gioRivalsBeaten);
+		append(sb, player.objectsCollected);
+		append(sb, player.pokedex);
+		sb.append('\n');
+		if(player.items.size()>0)
+		{
+			Item i=player.items.get(0);
+			sb.append(i.name).append(',').append(i.quantity);
+			for(int j=1; j<player.items.size(); j++)
+			{
+				i=player.items.get(j);
+				sb.append(';').append(i.name).append(',').append(i.quantity);
+			}
+		}
+		sb.append('\n');
+		for(Move m: player.tmHms)
+			sb.append(',').append(m.name);
+		sb.append('\n');
+		for(int i=1; i<14; i++)
+			sb.append(FlyLocation.FLY_LOCATIONS.get(FlyLocation.INDEX_MEANINGS[i]).visited?'1':'0');
+		try {
+			Files.writeString(Path.of("save.txt"), sb.toString());
+			print("Saved!");
+		} catch(Exception ex) {
+			ex.printStackTrace();
+			print(ex.getMessage());
+		}
+	}
+	private void startFlying()
+	{
+		flying=true;
+		inMenu=true;
+		currentLoc=printable(pm.name);
+		for(int i=0; i<11; i++)
+			for(int j=0; j<11; j++)
+				if(pm.name.equals(FlyLocation.NAME_MAP[i][j]))
+				{
+					inside=false;
+					return;
+				}
+		inside=true;
 	}
     private void setupKeyBindings() {
         InputMap inputMap = getInputMap(WHEN_IN_FOCUSED_WINDOW);
@@ -1025,25 +1089,25 @@ public class OverworldGui extends JPanel {
 		actionMap.put("stopEast", new MoveAction(Direction.EAST, false));
 		actionMap.put("choose0", new AbstractAction() {
 			@Override public void actionPerformed(ActionEvent e) {
-				mouseY=choosingFromLongList?80:540;
+				mouseY=choosingFromLongList?80:520;
 				clickMouse();
 			}
 		});
 		actionMap.put("choose1", new AbstractAction() {
 			@Override public void actionPerformed(ActionEvent e) {
-				mouseY=choosingFromLongList?105:565;
+				mouseY=choosingFromLongList?105:545;
 				clickMouse();
 			}
 		});
 		actionMap.put("choose2", new AbstractAction() {
 			@Override public void actionPerformed(ActionEvent e) {
-				mouseY=choosingFromLongList?130:590;
+				mouseY=choosingFromLongList?130:570;
 				clickMouse();
 			}
 		});
 		actionMap.put("choose3", new AbstractAction() {
 			@Override public void actionPerformed(ActionEvent e) {
-				mouseY=choosingFromLongList?155:615;
+				mouseY=choosingFromLongList?155:595;
 				clickMouse();
 			}
 		});
@@ -1152,17 +1216,7 @@ public class OverworldGui extends JPanel {
 				}
 				if (battling || showingText || choosingFromLongList||buySell) 
 					return;
-				flying=true;
-				inMenu=true;
-				currentLoc=printable(pm.name);
-				for(int i=0; i<11; i++)
-					for(int j=0; j<11; j++)
-						if(pm.name.equals(FlyLocation.NAME_MAP[i][j]))
-						{
-							inside=false;
-							return;
-						}
-				inside=true;
+				startFlying();
 			}
 		});
 		actionMap.put("showDex", new AbstractAction() {
@@ -1189,14 +1243,12 @@ public class OverworldGui extends JPanel {
 			}
 		});
 		actionMap.put("stopClicking", new AbstractAction() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
+			@Override public void actionPerformed(ActionEvent e) {
 				spaceHeld=!spaceHeld;
 			}
 		});
 		actionMap.put("save", new AbstractAction() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
+			@Override public void actionPerformed(ActionEvent e) {
 				if (inMenu||battling||showingText||choosingFromLongList||buySell)
 					return;
 				switch(pm.name)
@@ -1215,51 +1267,11 @@ public class OverworldGui extends JPanel {
 						printSpooky();
 						print("You will not be saved.");
 						return;
+					case "HallOfFame":
+						print("Wait, where's that ladder go? I'd better follow it...");
+						return;
 				}
-				StringBuilder sb=new StringBuilder(pm.name).append(',').append(playerX).append(',').append(playerY).append(',').append(facing.id).append(',').append(repelSteps).append(',').append(lastHeal.name)
-								.append(',').append(player.ballin?'1':'0').append(',').append(player.numCaught).append(',').append(player.money).append(',').append(player.name).append('\n');
-				if(player.pc.size()>0)
-				{
-					player.pc.get(0).append(sb);
-					for(int i=1; i<player.pc.size(); i++)
-						player.pc.get(i).append(sb.append(';'));
-				}
-				sb.append('\n');
-				player.team[0].append(sb);
-				for(int i=1; i<player.team.length; i++)
-					if(player.team[i]==null)
-						break;
-					else
-						player.team[i].append(sb.append(';'));
-				append(sb, player.trainersBeaten);
-				append(sb, player.leadersBeaten);
-				append(sb, player.gioRivalsBeaten);
-				append(sb, player.objectsCollected);
-				append(sb, player.pokedex);
-				sb.append('\n');
-				if(player.items.size()>0)
-				{
-					Item i=player.items.get(0);
-					sb.append(i.name).append(',').append(i.quantity);
-					for(int j=1; j<player.items.size(); j++)
-					{
-						i=player.items.get(j);
-						sb.append(';').append(i.name).append(',').append(i.quantity);
-					}
-				}
-				sb.append('\n');
-				for(Move m: player.tmHms)
-					sb.append(',').append(m.name);
-				sb.append('\n');
-				for(int i=1; i<14; i++)
-					sb.append(FlyLocation.FLY_LOCATIONS.get(FlyLocation.INDEX_MEANINGS[i]).visited?'1':'0');
-				try {
-					Files.writeString(Path.of("save.txt"), sb.toString());
-					print("Saved!");
-				} catch(Exception ex) {
-					ex.printStackTrace();
-					print(ex.getMessage());
-				}
+				save();
 			}
 		});
 		actionMap.put("shiftUp", new AbstractAction() {
@@ -1293,16 +1305,16 @@ public class OverworldGui extends JPanel {
 						return;
 					Move m=b.moves[0];
 					int pp=b.pp[0];
-					String s=longArr[10];
+					String s=longArr[13];
 					for(int i=1; i<n; i++)
 					{
 						b.moves[i-1]=b.moves[i];
 						b.pp[i-1]=b.pp[i];
-						longArr[i+9]=longArr[i+10];
+						longArr[i+12]=longArr[i+13];
 					}
 					b.moves[--n]=m;
 					b.pp[n]=pp;
-					longArr[n+10]=s;
+					longArr[n+13]=s;
 				}
 				else if(checkingTms)
 				{
@@ -1369,13 +1381,13 @@ public class OverworldGui extends JPanel {
 						return;
 					Move m=b.moves[0];
 					int pp=b.pp[0];
-					String s=longArr[10];
+					String s=longArr[13];
 					b.moves[0]=b.moves[1];
 					b.pp[0]=b.pp[1];
-					longArr[10]=longArr[11];
+					longArr[13]=longArr[14];
 					b.moves[1]=m;
 					b.pp[1]=pp;
-					longArr[11]=s;
+					longArr[14]=s;
 				}
 				else if(checkingTms)
 				{
@@ -1435,6 +1447,12 @@ public class OverworldGui extends JPanel {
 					}
 					return;
 				}
+				if(checkingMoves)
+				{
+					if(clickedChoice>0)
+						longArr=player.team[--clickedChoice].allInformation();
+					return;
+				}
 				if(!withdraw||psi==0)
 					return;
 				boxNum--;
@@ -1456,13 +1474,22 @@ public class OverworldGui extends JPanel {
 						if(x==151)
 						{
 							longArr[i]=player.pokedex[x]?"151: Mew":"";
-							while(i<20)
-								longArr[i++]="";
+							while(++i<20)
+								longArr[i]="";
 							return;
 						}
 						String n=x+"";
 						longArr[i]="0".repeat(3-n.length())+n+": "+(player.pokedex[x]?Monster.MONSTERS[x].name:"");
 					}
+					return;
+				}
+				if(checkingMoves)
+				{
+					if(clickedChoice<5)
+						if(player.team[++clickedChoice]!=null)
+							longArr=player.team[clickedChoice].allInformation();
+						else
+							clickedChoice--;
 					return;
 				}
 				if(!withdraw||psi+20>=player.pc.size())
@@ -1540,9 +1567,9 @@ public class OverworldGui extends JPanel {
 		for(int i=0; i<b.moves.length; i++)
 			if(b.moves[i]==null)
 				break;
-			else if(b.pp[i]<b.moves[i].pp)
+			else if(b.pp[i]<b.mpp[i])
 			{
-				b.moves[i].pp=Math.min(b.moves[i].pp+n, b.pp[i]);
+				b.pp[i]=Math.min(b.pp[i]+n, b.mpp[i]);
 				u=true;
 			}
 		if(u)
@@ -1594,7 +1621,7 @@ public class OverworldGui extends JPanel {
 			case "PARALYZED":
 				sb=5;
 		}
-		print("You threw a "+usedItem.name+"!");
+		print("You threw the "+usedItem.name+"!");
 		if((int)(Math.random()*256)<=Math.max(((thp - 2*wildMon.hp)*CATCH_RATES[wildMon.dexNum]*bm) / thp, 1) + sb)
 		{
 			battling=false;
@@ -1696,6 +1723,13 @@ public class OverworldGui extends JPanel {
     private boolean canMove(Direction d) {
 		if(switchingMaps)
 			return true;
+		if(playerX==currentMap[0].length)
+		{
+			print("You beat the game! Now fly out of here and save... and maybe talk to the professor, too!");
+			playerX=1;
+			startFlying();
+			return true;
+		}
         int nx = playerX, ny = playerY;
         switch (d) {
             case SOUTH -> ny++;
@@ -1744,7 +1778,7 @@ public class OverworldGui extends JPanel {
 				{
 					if(Math.random()<0.01)
 					{
-						print("Whoa, a rare candy! Who would throw this away?!");
+						print("Whoay! Who would throw this away?!");
 						player.give(Item.ITEM_MAP.get("Rare Candy"));
 					}
 					else
@@ -1760,6 +1794,7 @@ public class OverworldGui extends JPanel {
 	private int elevate(String s, boolean B, int m)
 	{
 		pressedKeys.clear();
+		heldDirection=null;
 		if(B&&!player.hasItem(LIFT_KEY))
 		{
 			print("Weird, nothing is happening.");
@@ -1925,6 +1960,7 @@ public class OverworldGui extends JPanel {
 				if(wo!=null)
 				{
 					pressedKeys.clear();
+					heldDirection=null;
 					if(wo.stepOn(this))
 						pm.stepOn(player, nextX, nextY);
 					phaseFrame=currentStepFrames;
@@ -1962,12 +1998,20 @@ public class OverworldGui extends JPanel {
 					else
 						print("Crap, it wants me to scan an ID!!");
 				}
+				else if(pm.grid[nextY][nextX]==143)
+				{
+					phaseFrame=currentStepFrames;
+					heldDirection=Direction.EAST;
+					print("Hey baby, come sit on my lap!");
+					print("(Eek, I'd better get out of here!)");
+				}
 				else
 				{
 					martItems=pm.getMartItems(playerX, playerY);
 					if(martItems!=null)
 					{
 						pressedKeys.clear();
+						heldDirection=null;
 						buySell=true;
 						strArr[0]="Buy";
 						strArr[1]="Sell";
@@ -1997,6 +2041,7 @@ public class OverworldGui extends JPanel {
 				if(g!=null)
 				{
 					pressedKeys.clear();
+					heldDirection=null;
 					g.interact(player);
 					if(pm.name.equals("Daycare"))
 					{
@@ -2028,6 +2073,7 @@ public class OverworldGui extends JPanel {
 				if(wo!=null)
 				{
 					pressedKeys.clear();
+					heldDirection=null;
 					Boolean b=wo.stepOn(this);
 					if(b==null)
 					{
@@ -2064,6 +2110,8 @@ public class OverworldGui extends JPanel {
 				}
 				if(--repelSteps==0)
 					print("Your repel ran out!");
+				else
+					repelSteps=Math.max(repelSteps, 0);
 				switch(tileTypes[nextY][nextX])
 				{
 					case 1:
@@ -2095,6 +2143,7 @@ public class OverworldGui extends JPanel {
 						if(playerX==0&&playerY==6&&pm.name.equals("RedsHouse2F"))
 						{
 							player.ballin=true;
+							Trainer.addEliteFour();
 							print("What? How did I get back here??");
 						}
 						break;
@@ -2262,8 +2311,9 @@ public class OverworldGui extends JPanel {
 									}
 									else
 									{
-										player.money+=(result+t.reward)*(player.hasItem(AMULET_COIN)?2:1);
-										print("You got $"+t.reward+" for winning!");
+										int r=(result+t.reward)*(player.hasItem(AMULET_COIN)?2:1);
+										player.money+=r;
+										print("You got $"+r+" for winning!");
 										print(t.phrases[1]);
 										t.beat(player);
 										pm.deleteTrainer(t, pm.sight[playerY][playerX]);
@@ -2381,9 +2431,9 @@ public class OverworldGui extends JPanel {
 			else if(teachingMove&&strArr[0]!=null)
 			{
 				drawTextBox(g, strArr[0]);
-				drawWrappedText(g2, strArr[1], 60, getHeight()-140+25, getWidth()-120);
-				drawWrappedText(g2, strArr[2], 60, getHeight()-140+50, getWidth()-120);
-				drawWrappedText(g2, strArr[3], 60, getHeight()-140+75, getWidth()-120);
+				drawWrappedText(g2, strArr[1], 60, getHeight()-160+25, getWidth()-120);
+				drawWrappedText(g2, strArr[2], 60, getHeight()-160+50, getWidth()-120);
+				drawWrappedText(g2, strArr[3], 60, getHeight()-160+75, getWidth()-120);
 			}
 			else if(checkingTms)
 				drawWrappedText(g2, "TM/HMs", 150, 30, getWidth()-120);
@@ -2497,9 +2547,9 @@ public class OverworldGui extends JPanel {
 			else
 			{
 				drawTextBox(g, strArr[0]);
-				drawWrappedText(g2, strArr[1], 60, getHeight()-140+25, getWidth()-120);
-				drawWrappedText(g2, strArr[2], 60, getHeight()-140+50, getWidth()-120);
-				drawWrappedText(g2, strArr[3], 60, getHeight()-140+75, getWidth()-120);
+				drawWrappedText(g2, strArr[1], 60, getHeight()-160+25, getWidth()-120);
+				drawWrappedText(g2, strArr[2], 60, getHeight()-160+50, getWidth()-120);
+				drawWrappedText(g2, strArr[3], 60, getHeight()-160+75, getWidth()-120);
 			}
 			return;
 		}
@@ -2508,24 +2558,23 @@ public class OverworldGui extends JPanel {
 		else if(buySell||depWith)
 		{
 			drawTextBox(g, strArr[0]);
-			drawWrappedText((Graphics2D)g, strArr[1], 60, getHeight()-140+25, getWidth()-120);
+			drawWrappedText((Graphics2D)g, strArr[1], 60, getHeight()-160+25, getWidth()-120);
 		}
 		else if(rareCandy)
 		{
 			drawTextBox(g, strArr[0]);
-			drawWrappedText(g2, strArr[1], 60, getHeight()-140+25, getWidth()-120);
-			drawWrappedText(g2, strArr[2], 60, getHeight()-140+50, getWidth()-120);
-			drawWrappedText(g2, strArr[3], 60, getHeight()-140+75, getWidth()-120);
+			drawWrappedText(g2, strArr[1], 60, getHeight()-160+25, getWidth()-120);
+			drawWrappedText(g2, strArr[2], 60, getHeight()-160+50, getWidth()-120);
+			drawWrappedText(g2, strArr[3], 60, getHeight()-160+75, getWidth()-120);
 		}
     }
 	private void drawTextBox(Graphics g, String text) {
 		Graphics2D g2 = (Graphics2D) g;
 		text=text.replace("🔴", "");
 		int boxWidth = getWidth() - 80;
-		int boxHeight = 140;
+		int boxHeight = 160;
 		int x = 40;
 		int y = getHeight() - boxHeight - 40;
-
 		// Draw white background
 		g2.setColor(Color.WHITE);
 		g2.fillRoundRect(x, y, boxWidth, boxHeight, 20, 20);
@@ -2585,7 +2634,24 @@ public class OverworldGui extends JPanel {
 		sy=Math.max(sy, 0);
 		for(int y=sy; y<ey; y++)
 			for(int x=sx; x<ex; x++)
+			{
                 g.drawImage(tileImages[mapGrid[y][x]], x * TILE_SIZE + px, y * TILE_SIZE + py, null);
+				Trainer t=conn.trainers[y][x];
+				if(t==null)
+				{
+					WorldObject w=conn.wob[y][x];
+					if(w==null)
+					{
+						Giver giv=conn.givers[y][x];
+						if(giv!=null)
+							g.drawImage(giv.bi, x * TILE_SIZE + px, y * TILE_SIZE + py, null);
+					}
+					else
+						g.drawImage(w.bi, x * TILE_SIZE + px, y * TILE_SIZE + py, null);
+				}
+				else
+					g.drawImage(t.bi, x * TILE_SIZE + px, y * TILE_SIZE + py, null);
+			}
     }
 
     private int getCurrentFrame() {

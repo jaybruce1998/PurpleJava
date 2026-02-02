@@ -60,7 +60,7 @@ public class Evolution
 96,(Level 26),97
 98,(Level 28),99
 100,(Level 30),101
-103,Leaf Stone,103
+102,Leaf Stone,103
 104,(Level 28),105
 109,(Level 35),110
 111,(Level 42),112
@@ -68,9 +68,6 @@ public class Evolution
 118,(Level 33),119
 120,Water Stone,121
 129,(Level 20),130
-133,Water Stone,134
-133,Thunder Stone,135
-133,Fire Stone,136
 138,(Level 40),139
 140,(Level 40),141
 147,(Level 30),148

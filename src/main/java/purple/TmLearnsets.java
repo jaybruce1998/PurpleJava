@@ -22,8 +22,8 @@ Swords Dance,Toxic,Take Down,Double-Edge,Hyper Beam,Rage,Mega Drain,Mimic,Double
 Razor Wind,Whirlwind,Toxic,Take Down,Double-Edge,Rage,Mimic,Double Team,Reflect,Bide,Swift,Sky Attack,Rest,Substitute,Fly
 Razor Wind,Whirlwind,Toxic,Take Down,Double-Edge,Rage,Mimic,Double Team,Reflect,Bide,Swift,Sky Attack,Rest,Substitute,Fly
 Razor Wind,Whirlwind,Toxic,Take Down,Double-Edge,Hyper Beam,Rage,Mimic,Double Team,Reflect,Bide,Swift,Sky Attack,Rest,Substitute,Fly
-Toxic,Body Slam,Take Down,Double-Edge,Bubble Beam,Water Gun,Blizzard,Rage,Thunderbolt,Thunder,Dig,Mimic,Double Team,Bide,Swift,Skull Bash,Rest,Substitute
-Toxic,Body Slam,Take Down,Double-Edge,Bubble Beam,Water Gun,Ice Beam,Blizzard,Hyper Beam,Rage,Thunderbolt,Thunder,Dig,Mimic,Double Team,Bide,Swift,Skull Bash,Rest,Substitute
+Toxic,Body Slam,Take Down,Double-Edge,Bubble Beam,Water Gun,Blizzard,Rage,Thunderbolt,Thunder,Dig,Mimic,Double Team,Bide,Swift,Skull Bash,Rest,Substitute,Rat Gambit
+Toxic,Body Slam,Take Down,Double-Edge,Bubble Beam,Water Gun,Ice Beam,Blizzard,Hyper Beam,Rage,Thunderbolt,Thunder,Dig,Mimic,Double Team,Bide,Swift,Skull Bash,Rest,Substitute,Rat Gambit
 Razor Wind,Whirlwind,Toxic,Take Down,Double-Edge,Rage,Mimic,Double Team,Bide,Swift,Sky Attack,Rest,Substitute,Fly
 Razor Wind,Whirlwind,Toxic,Take Down,Double-Edge,Hyper Beam,Rage,Mimic,Double Team,Bide,Swift,Sky Attack,Rest,Substitute,Fly
 Toxic,Body Slam,Take Down,Double-Edge,Rage,Mega Drain,Earthquake,Fissure,Dig,Mimic,Double Team,Bide,Skull Bash,Rest,Rock Slide,Substitute,Strength
@@ -154,7 +154,7 @@ Toxic,Body Slam,Take Down,Double-Edge,Bubble Beam,Water Gun,Ice Beam,Blizzard,Ra
 Toxic,Horn Drill,Body Slam,Take Down,Double-Edge,Bubble Beam,Water Gun,Ice Beam,Blizzard,Rage,Dragon Rage,Thunderbolt,Thunder,Mimic,Double Team,Reflect,Bide,Fire Blast,Swift,Skull Bash,Rest,Thunder Wave,Substitute,Surf
 Razor Wind,Toxic,Horn Drill,Body Slam,Take Down,Double-Edge,Bubble Beam,Water Gun,Ice Beam,Blizzard,Hyper Beam,Rage,Dragon Rage,Thunderbolt,Thunder,Mimic,Double Team,Reflect,Bide,Fire Blast,Swift,Skull Bash,Rest,Thunder Wave,Substitute,Surf,Strength
 Mega Punch,Mega Kick,Toxic,Body Slam,Take Down,Double-Edge,Bubble Beam,Water Gun,Ice Beam,Blizzard,Hyper Beam,Pay Day,Submission,Counter,Seismic Toss,Rage,Solar Beam,Thunderbolt,Thunder,Psychic,Teleport,Mimic,Double Team,Reflect,Bide,Metronome,Self-Destruct,Fire Blast,Skull Bash,Rest,Thunder Wave,Psywave,Tri Attack,Substitute,Strength,Flash
-Mega Punch,Razor Wind,Swords Dance,Whirlwind,Mega Kick,Toxic,Horn Drill,Body Slam,Take Down,Double-Edge,Bubble Beam,Water Gun,Ice Beam,Blizzard,Hyper Beam,Pay Day,Submission,Counter,Seismic Toss,Rage,Mega Drain,Solar Beam,Dragon Rage,Thunderbolt,Thunder,Earthquake,Fissure,Dig,Psychic,Teleport,Mimic,Double Team,Reflect,Bide,Metronome,Self-Destruct,Egg Bomb,Fire Blast,Swift,Skull Bash,Soft-Boiled,Dream Eater,Sky Attack,Rest,Thunder Wave,Psywave,Explosion,Rock Slide,Tri Attack,Substitute,Cut,Fly,Surf,Strength,Flash""".split("\n");
+Mega Punch,Razor Wind,Swords Dance,Whirlwind,Mega Kick,Toxic,Horn Drill,Body Slam,Take Down,Double-Edge,Bubble Beam,Water Gun,Ice Beam,Blizzard,Hyper Beam,Pay Day,Submission,Counter,Seismic Toss,Rage,Mega Drain,Solar Beam,Dragon Rage,Thunderbolt,Thunder,Earthquake,Fissure,Dig,Psychic,Teleport,Mimic,Double Team,Reflect,Bide,Metronome,Self-Destruct,Egg Bomb,Fire Blast,Swift,Skull Bash,Soft-Boiled,Dream Eater,Sky Attack,Rest,Thunder Wave,Psywave,Explosion,Rock Slide,Tri Attack,Substitute,Cut,Fly,Surf,Strength,Flash,Rat Gambit""".split("\n");
 	public static void buildTmLearnsets()
 	{
 		for(int i=1; i<LEARNSET_STRINGS.length; i++)

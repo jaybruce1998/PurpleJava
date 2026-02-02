@@ -13,7 +13,7 @@ public class Battler extends Monster
 	String nickname, status, group;
 	int level, mhp, xp, mxp, atkDv, defDv, spatkDv, spdefDv, hpDv, spdDv, atkXp, defXp, spatkXp, spdefXp, hpXp, spdXp, bAtk, bDef, bSpatk, bSpdef, bHp, bSpd, lsi;
 	Move[] moves;
-	int[] pp;
+	int[] pp, mpp;
 	boolean shiny;
 	Learnset[] learnset;
 	Evolution evolution;
@@ -75,6 +75,7 @@ public class Battler extends Monster
 		hp=mhp;
 		moves=new Move[4];
 		pp=new int[4];
+		mpp=new int[4];
 		for(int md=0; lsi<learnset.length; lsi++)
 			if(learnset[lsi].level>level)
 				break;
@@ -87,7 +88,10 @@ public class Battler extends Monster
 			if(moves[i]==null)
 				break;
 			else
+			{
 				pp[i]=moves[i].pp;
+				mpp[i]=pp[i];
+			}
 	}
 	public Battler(int level, Monster m)
 	{
@@ -107,7 +111,9 @@ public class Battler extends Monster
 	{
 		super();
 		dexNum=b.dexNum-1;
-		if(dexNum<1||Evolution.EVOLUTIONS[dexNum]==null)
+		if(dexNum>132&&dexNum<136)
+			dexNum=133;
+		else if(dexNum<1||Evolution.EVOLUTIONS[dexNum]==null)
 			dexNum++;
 		else
 		{
@@ -150,7 +156,7 @@ public class Battler extends Monster
 		nickname=i[2];
 		status=i[3];
 		xp=Integer.parseInt(i[4]);
-		hp=Integer.parseInt(i[5])-1;
+		hp=Integer.parseInt(i[5])-1;//We add one again in calculateStats
 		lsi=Integer.parseInt(i[6]);
 		atkDv=Integer.parseInt(i[7]);
 		defDv=Integer.parseInt(i[8]);
@@ -170,11 +176,17 @@ public class Battler extends Monster
 		calculateStats();
 		moves=new Move[4];
 		pp=new int[4];
+		mpp=new int[4];
 		for(int j=a.length-2; j>=0; j--)
 		{
 			i=a[j+1].split(",");
 			moves[j]=Move.MOVE_MAP.get(i[0]);
-			pp[j]=Integer.parseInt(i[1]);
+			String[] q=i[1].split("x");
+			pp[j]=Integer.parseInt(q[0]);
+			if(q.length==2)
+				mpp[j]=Integer.parseInt(q[1]);
+			else
+				mpp[j]=moves[j].pp;
 		}
 	}
 	public void learn(Move[] lastMoves, Move m)
@@ -192,6 +204,7 @@ public class Battler extends Monster
 			lastMoves[v]=m;
 			moves[v]=m;
 			pp[v]=Math.min(pp[v], m.pp);
+			mpp[v]=m.pp;
 			OverworldGui.print(" and learned how to use "+m.name+"!");
 		}
 	}
@@ -216,6 +229,7 @@ public class Battler extends Monster
 								moves[++i]=learnset[lsi].move;
 								lastMoves[i]=moves[i];
 								pp[i]=moves[i].pp;
+								mpp[i]=pp[i];
 								OverworldGui.print(nickname+" learned "+moves[i].name+"!");
 								break;
 							}
@@ -256,7 +270,25 @@ public class Battler extends Monster
 	}
 	public boolean useStone(String s)
 	{
-		if(evolution==null||!s.equals(evolution.stone))
+		if(dexNum==133)
+		{
+			switch(s)
+			{
+				case "Water Stone":
+					evolution=new Evolution(s, 134);
+					break;
+				case "Thunder Stone":
+					evolution=new Evolution(s, 135);
+					break;
+				case "Fire Stone":
+					evolution=new Evolution(s, 136);
+					break;
+				default:
+					OverworldGui.print("Neat idea, but nope, sorry! Try a different stone...");
+					return false;
+			}
+		}
+		else if(evolution==null||!s.equals(evolution.stone))
 		{
 			OverworldGui.print("Quit messing around!");
 			return false;
@@ -273,7 +305,7 @@ public class Battler extends Monster
 			if(moves[i]==null)
 				a[i]="";
 			else
-				a[i]=moves[i].name+" ("+pp[i]+"/"+moves[i].pp+")";
+				a[i]=moves[i].name+" ("+pp[i]+"/"+mpp[i]+")";
 		return a;
 	}
 	public static String[] partyStrings(Battler[] party)
@@ -294,24 +326,27 @@ public class Battler extends Monster
 			if(moves[i]==null)
 				return;
 			else
-				pp[i]=moves[i].pp;
+				pp[i]=mpp[i];
 	}
 	public String[] allInformation()
 	{
-		return new String[]{nickname+(shiny?" (SHINY)":""),
-			status.isEmpty()?name:name+" ("+status+")",
-			"Level: "+level+" XP: ("+xp+"/"+mxp+")",
+		return new String[]{nickname+"/"+name,
+			(status.isEmpty()?"healthy":status)+"/"+(shiny?"SHINY":"happy"),
+			"Level: "+level+", "+String.join("/", types),
+			"XP: "+xp+"/"+mxp,
+			"",
 			"HP: "+hp+"/"+mhp+" DV: ("+hpDv+")",
 			"Speed: "+spd+" DV: ("+spdDv+")",
 			"Attack: "+atk+" DV: ("+atkDv+")",
 			"Defense: "+def+" DV: ("+defDv+")",
 			"Special Attack: "+spatk+" DV: ("+spatkDv+")",
 			"Special Defense: "+spdef+" DV: ("+spdefDv+")",
+			"",
 			"Moves:",
-			moves[0].name+" "+pp[0]+"/"+moves[0].pp,
-			moves[1]==null?"":moves[1].name+" "+pp[1]+"/"+moves[1].pp,
-			moves[2]==null?"":moves[2].name+" "+pp[2]+"/"+moves[2].pp,
-			moves[3]==null?"":moves[3].name+" "+pp[3]+"/"+moves[3].pp
+			moves[0].name+" "+pp[0]+"/"+mpp[0],
+			moves[1]==null?"":moves[1].name+" "+pp[1]+"/"+mpp[1],
+			moves[2]==null?"":moves[2].name+" "+pp[2]+"/"+mpp[2],
+			moves[3]==null?"":moves[3].name+" "+pp[3]+"/"+mpp[3]
 		};
 	}
 	public void append(StringBuilder sb)
@@ -323,7 +358,7 @@ public class Battler extends Monster
 			if(moves[i]==null)
 				break;
 			else
-				sb.append('/').append(moves[i].name).append(',').append(pp[i]);
+				sb.append('/').append(moves[i].name).append(',').append(pp[i]).append('x').append(mpp[i]);
 	}
 	public String toString()
 	{

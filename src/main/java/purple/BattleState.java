@@ -20,7 +20,7 @@ public class BattleState
 		if(b.shouldStruggle())
 			return -1;
 		for(int i=0; i<4; i++)
-			OverworldGui.strArr[i]=b.moves[i]==null?"":b.moves[i].name+" ("+b.monster.pp[i]+"/"+b.moves[i].pp+")";
+			OverworldGui.strArr[i]=b.moves[i]==null?"":b.moves[i].name+" ("+b.monster.pp[i]+"/"+b.monster.mpp[i]+")";
 		while(true)
 		{
 			int moveDex=guiChoice(3);
@@ -303,6 +303,8 @@ public class BattleState
 							didSomething=false;
 							break;
 						}
+						if(pState.monster.status.isEmpty())
+							pState.sTurns=0;
 						if(wState.nextMove==null)
 						{
 							wMoveDex=randomMoveDex(wState);
@@ -438,6 +440,7 @@ public class BattleState
 						}
 						else
 						{
+							pState.tTurns=0;
 							OverworldGui.print(tMonsters[tMonDex].nickname+" fainted!");
 							pState.gainXp(gui.player, participants, tMonsters[tMonDex], true, lucky);
 							if(blackedOut(tMonsters))
@@ -461,6 +464,7 @@ public class BattleState
 					}
 					else if(pState.monster.hp>0&&!pState.doMove(myMove, wState))
 					{
+						pState.tTurns=0;
 						OverworldGui.print(tMonsters[tMonDex].nickname+" fainted!");
 						pState.gainXp(gui.player, participants, tMonsters[tMonDex], true, lucky);
 						if(blackedOut(tMonsters))
@@ -574,6 +578,7 @@ public class BattleState
 					}
 				if(wState.endTurn())
 				{
+					pState.tTurns=0;
 					OverworldGui.print(tMonsters[tMonDex].nickname+" fainted!");
 					pState.gainXp(gui.player, participants, tMonsters[tMonDex], true, lucky);
 					if(blackedOut(tMonsters))
@@ -838,7 +843,7 @@ public class BattleState
 				{
 					case "max_hp":
 						monster.hp=Math.max(0, monster.hp-(int)(e.modifier*monster.mhp));
-						OverworldGui.print("It fell and lost "+e.modifier*100+"% of its max health!");
+						OverworldGui.print("It fell and lost "+e.modifier*100+" percent of its max health!");
 						break;
 					default:
 						throw new RuntimeException(e.stat);
@@ -1449,8 +1454,13 @@ public class BattleState
 						}
 						break;
 					case "CHARGE":
-						nextMove=m==RECHARGE?null:new Move(m, i+1);
-						OverworldGui.print(monster.nickname+" has to charge!");
+						if(m==RECHARGE)
+							nextMove=null;
+						else
+						{
+							nextMove=new Move(m, i+1);
+							OverworldGui.print("But "+monster.nickname+" has to charge, so it did no damage...");
+						}
 						return true;
 					case "BIDE":
 						damage=(lastDamage[0]+lastDamage[1])*2;

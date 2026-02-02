@@ -37,8 +37,8 @@ PokemonTower7F;MR_FUJI 10 3 DOWN,Pokeflute""".split("\n");
 Hey there! You haven't caught many pokemon, huh?;Howdy, what do you think of this?... what, you don't like being flashed? Well now you can flash, too!;Have fun flashing all of your friends!
 Oh, it's you! But... you haven't done much pokemon catching.;Hey, you're pretty poor! I bet this can help you out!;Just you wait, you'll be loaded in no time!
 Hmm, I wonder if there are any PokeLovers around here...;Oh! Well you're... so weak. Take this, it should help!;Oh yeah, now you can get strong like me!
-Congratulations!... although your pokedex could use some work. Go catch more pokemon!;...heh, you found the forbidden one, huh? I guess you're worthy of this, then.
-Weak, much too weak...;Maybe you can help.;...although we're probably doomed.
+Congratulations!... although your pokedex could use some work. Go catch more pokemon!;...heh, you found the forbidden one, huh? I guess you're worthy of this, then.;Seriously though, congratulations! And thanks for saving the world, that beast should serve you well.
+Oh, you seem lost... this is the source of the world's voids, I'm sure you've seen them. But you are still so weak.;Maybe you can help.;...although we're probably doomed.
 Oh bother, if only I had some secret sauce...;Oh, is that secret sauce?! This will go great with my PokePasta! Here, take this.;Huh, tastes a bit... sour...
 Dangit, how am I ever gonna afford a bike here?;Whoa, is that a voucher? I guess I don't need this!;...wait, he doesn't want this, either? Oh no...
 Buh? Buh buh buh?;Buh? Oh hey, I can talk! Thanks, take this!;Buh buh... weird, I got so used to buh'ing they just come out sometimes!

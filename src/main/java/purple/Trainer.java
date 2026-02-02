@@ -76,7 +76,7 @@ FuchsiaGym;KOGA,4,10,DOWN,Leader Koga,4257,37 Koffing,39 Muk,37 Koffing,43 Weezi
 SaffronGym;GIRL,9,8,DOWN,Leader Sabrina,4257,38 Kadabra,37 Mr. Mime,38 Venomoth,43 Alakazam;Psywave
 CinnabarGym;MIDDLE_AGED_MAN,3,3,DOWN,Leader Blaine,4653,42 Growlithe,40 Ponyta,42 Rapidash,47 Arcanine;Fire Blast
 ViridianGym;GIOVANNI,2,1,DOWN,Leader Giovanni,4950,45 Rhyhorn,42 Dugtrio,44 Nidoqueen,45 Nidoking,50 Rhydon;Fissure
-FuchsiaCity;MONSTER 13 6 DOWN,Bungler Johnson,2000000,1000 Raticate;Rat Gambit""".split("\n");
+FuchsiaCity;MONSTER,13,5,DOWN,RatMan Johnson,100000,120 Raticate,120 Raticate,120 Raticate,120 Raticate,120 Raticate,120 Raticate;Rat Gambit""".split("\n");
 	static String[] GIO_RIVAL_TEAM_STRINGS="""
 RocketHideoutB4F;GIOVANNI,25,3,DOWN,Giovanni,2871,25 Onix,24 Rhyhorn,29 Kangaskhan
 SilphCo11F;GIOVANNI,6,5,DOWN,Giovanni,4059,37 Nidorino,35 Kangaskhan,37 Rhyhorn,41 Nidoqueen
