@@ -133,7 +133,7 @@ ViridianCity west Route22 8""".split("\n");
 	Trainer[][] trainers;
 	int[][] sight;
 	WorldObject[][] wob;
-	Giver[][] givers;
+	Npc[][] npcs;
 	Map<Integer, MartItem[]> martMap;
 	public PokeMap(String name, String s, int n)
 	{
@@ -158,7 +158,7 @@ ViridianCity west Route22 8""".split("\n");
 				types[i][j]=TILE_TYPES[grid[i][j]];
 		trainers=new Trainer[a.length][c.length];
 		wob=new WorldObject[a.length][c.length];
-		givers=new Giver[a.length][c.length];
+		npcs=new Npc[a.length][c.length];
 		martMap=new HashMap<>();
 		healX=n;
 		healY=n;
@@ -393,17 +393,17 @@ ViridianCity west Route22 8""".split("\n");
 	public void addGiver(String s, String q)
 	{
 		Giver g=new Giver(s, q);
-		givers[g.y][g.x]=g;
+		npcs[g.y][g.x]=g;
 	}
 	public void addGiver(String s, int n, String q)
 	{
 		Giver.Aide g=new Giver.Aide(s, n, q);
-		givers[g.y][g.x]=g;
+		npcs[g.y][g.x]=g;
 	}
 	public void addGiver(String s, String i, String q)
 	{
 		Giver.IfGiver g=new Giver.IfGiver(s, i, q);
-		givers[g.y][g.x]=g;
+		npcs[g.y][g.x]=g;
 	}
 	public void addMartItems(String[] a)
 	{
@@ -416,12 +416,12 @@ ViridianCity west Route22 8""".split("\n");
 	public void addBlocker(String s, String q)
 	{
 		Blocker b=new Blocker(s, q);
-		givers[b.y][b.x]=b;
+		npcs[b.y][b.x]=b;
 	}
 	public void addBlocker(String s, String q, int n)
 	{
 		Blocker b=new Blocker(s, q, n);
-		givers[b.y][b.x]=b;
+		npcs[b.y][b.x]=b;
 	}
 	public void setHeal(int n)
 	{
@@ -431,12 +431,12 @@ ViridianCity west Route22 8""".split("\n");
 	public void addNpc(String s, String q)
 	{
 		Npc n=new Npc(s, q);
-		givers[n.y][n.x]=n;
+		npcs[n.y][n.x]=n;
 	}
 	public void addTrader(String s, String p)
 	{
 		Trader t=new Trader(s, p);
-		givers[t.y][t.x]=t;
+		npcs[t.y][t.x]=t;
 	}
 	public void stepOn(Player p, int x, int y)
 	{

@@ -72,7 +72,7 @@ public class OverworldGui extends JPanel {
 	private int bet=1;
 	private final JFrame frame;
 	private final static BufferedImage[] DANCE_FRAMES=new BufferedImage[10], OAK_FRAMES=new BufferedImage[10], MONSTER_FRAMES=new BufferedImage[3];
-	private final Giver MATT=PokeMap.POKEMAPS.get("Route24").givers[0][19], OAK=PokeMap.POKEMAPS.get("FuchsiaCity").givers[6][13];
+	private final Npc MATT=PokeMap.POKEMAPS.get("Route24").npcs[0][19], OAK=PokeMap.POKEMAPS.get("FuchsiaCity").npcs[6][13];
 	private final Trainer MONSTER=PokeMap.POKEMAPS.get("FuchsiaCity").trainers[5][13];
 	enum Direction {
 		SOUTH(0),
@@ -236,7 +236,7 @@ public class OverworldGui extends JPanel {
 		if(a[6].equals("1"))
 			p.ballin=true;
 		else
-			PokeMap.POKEMAPS.get("SilphCo11F").givers[5][7]=null;
+			PokeMap.POKEMAPS.get("SilphCo11F").npcs[5][7]=null;
 		p.numCaught=Integer.parseInt(a[7]);
 		p.money=Integer.parseInt(a[8]);
 		p.name=a[9];
@@ -1975,7 +1975,7 @@ public class OverworldGui extends JPanel {
 			else if(b)
 			{
 				WorldObject wo=pm.wob[nextY][nextX];
-				Giver g=pm.givers[nextY][nextX];
+				Npc n=pm.npcs[nextY][nextX];
 				if(wo!=null)
 				{
 					pressedKeys.clear();
@@ -1984,11 +1984,11 @@ public class OverworldGui extends JPanel {
 						pm.stepOn(player, nextX, nextY);
 					phaseFrame=currentStepFrames;
 				}
-				else if(g!=null)
+				else if(n!=null)
 				{
 					pressedKeys.clear();
 					heldDirection=null;
-					g.interact(player);
+					n.interact(player);
 					phaseFrame=currentStepFrames;
 				}
 				else if(pm.grid[playerY][playerX]==122&&pm.name.equals("GameCorner"))
@@ -2256,6 +2256,8 @@ public class OverworldGui extends JPanel {
 							}
 					}
 			}
+			else if(Math.random()<0.005)
+				printSpooky();
 		}
 		else if(canMove(facing)) {
 			offsetX += dx * delta;
@@ -2273,12 +2275,12 @@ public class OverworldGui extends JPanel {
 				currentStepFrames = BUMP_STEP_FRAMES;
 			else
 			{
-				Giver g=pm.givers[nextY][nextX];
-				if(g!=null)
+				Npc n=pm.npcs[nextY][nextX];
+				if(n!=null)
 				{
 					pressedKeys.clear();
 					heldDirection=null;
-					g.interact(player);
+					n.interact(player);
 					if(pm.name.equals("Daycare"))
 					{
 						int p=5000, d=player.team[0].dexNum;
@@ -2295,12 +2297,8 @@ public class OverworldGui extends JPanel {
 							player.give(new Battler(player.team[0]));
 						}
 					}
-					else if(g.gave)
-					{
-						if(g.item!=null&&g.item.name.equals("Shiny Charm"))
-							Main.SHINY_CHANCE=256;
-						pm.givers[nextY][nextX]=null;
-					}
+					else if(n.dead)
+						pm.npcs[nextY][nextX]=null;
 					offsetX=0;
 					offsetY=0;
 					return;
@@ -2366,9 +2364,9 @@ public class OverworldGui extends JPanel {
 						else if(pm.grid[nextY][nextX]==697)
 						{
 							inMenu=true;
-							int n=elevate("SilphCo", false, 11);
-							if(n>0)
-								playerX=SILPH_X[n];
+							int f=elevate("SilphCo", false, 11);
+							if(f>0)
+								playerX=SILPH_X[f];
 							inMenu=false;
 							break;
 						}
@@ -2731,9 +2729,9 @@ public class OverworldGui extends JPanel {
 					WorldObject w=pm.wob[y][x];
 					if(w==null)
 					{
-						Giver giv=pm.givers[y][x];
-						if(giv!=null)
-							g.drawImage(giv.bi, x * TILE_SIZE - camX, y * TILE_SIZE - camY, null);
+						Npc n=pm.npcs[y][x];
+						if(n!=null)
+							g.drawImage(n.bi, x * TILE_SIZE - camX, y * TILE_SIZE - camY, null);
 					}
 					else
 						g.drawImage(w.bi, x * TILE_SIZE - camX, y * TILE_SIZE - camY, null);
@@ -2880,9 +2878,9 @@ public class OverworldGui extends JPanel {
 					WorldObject w=conn.wob[y][x];
 					if(w==null)
 					{
-						Giver giv=conn.givers[y][x];
-						if(giv!=null)
-							g.drawImage(giv.bi, x * TILE_SIZE + px, y * TILE_SIZE + py, null);
+						Npc n=conn.npcs[y][x];
+						if(n!=null)
+							g.drawImage(n.bi, x * TILE_SIZE + px, y * TILE_SIZE + py, null);
 					}
 					else
 						g.drawImage(w.bi, x * TILE_SIZE + px, y * TILE_SIZE + py, null);

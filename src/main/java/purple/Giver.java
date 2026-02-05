@@ -1,9 +1,6 @@
 package purple;
 
-import java.awt.image.BufferedImage;
-import java.io.File;
-import javax.imageio.ImageIO;
-public class Giver
+public class Giver extends Npc
 {
 	static String[] GIVER_STRINGS="""
 Route2Gate;SCIENTIST 1 4 LEFT,Move=Flash;10
@@ -81,79 +78,29 @@ My my, you've traveled far to save me, thank you! But I'm actually just wanderin
 		}
 	}
 	
-	BufferedImage bi;
-	int x, y, id;
 	Move move;
 	Item item;
-	String[] quotes;
-	boolean gave;
+	int id;
 	public Giver(String s, String q)
 	{
+		String[] a=s.split(",");
+		super(a[0], q);
 		id=gid++;
-		String[] a=s.split(","), f=a[0].split(" ");
-		int dir;
-		if(Giver.class.getResourceAsStream("/sprites/"+f[0]+"/9.png")==null)
-			switch(f[3])
-			{
-				case "DOWN":
-					dir=0;
-					break;
-				case "UP":
-					dir=1;
-					break;
-				case "LEFT":
-					dir=2;
-					break;
-				case "RIGHT":
-					dir=3;
-					break;
-				default:
-					throw new RuntimeException(s);
-			}
-		else
-			switch(f[3])
-			{
-				case "DOWN":
-					dir=1;
-					break;
-				case "UP":
-					dir=4;
-					break;
-				case "LEFT":
-					dir=6;
-					break;
-				case "RIGHT":
-					dir=8;
-					break;
-				default:
-					throw new RuntimeException(s);
-			}
-		bi=Trainer.TRAINER_SPRITES.computeIfAbsent(f[0]+dir, k->{
-			try {
-				return OverworldGui.scale(ImageIO.read(Giver.class.getResourceAsStream("/sprites/" + f[0] + "/" + dir + ".png")));
-			} catch (Exception e) {
-				e.printStackTrace();
-				throw new RuntimeException("No trainer sprite!");
-			}
-		});
-		x=Integer.parseInt(f[1]);
-		y=Integer.parseInt(f[2]);
 		if(a[1].startsWith("Move"))
 			move=Move.MOVE_MAP.get(a[1].substring(5));
 		else
 			item=Item.ITEM_MAP.get(a[1]);
-		quotes=q.split(";");
 	}
 	public void interact(Player p)
 	{
-		if(!gave)
+		if(!dead)
 		{
 			OverworldGui.print(quotes[0]);
 			if(move==null)
 				p.give(item);
 			else
 				p.give(move);
-			gave=true;
+			dead=true;
 		}
 		OverworldGui.print(quotes[1]);
 	}
@@ -173,14 +120,18 @@ My my, you've traveled far to save me, thank you! But I'm actually just wanderin
 				OverworldGui.print(quotes[0]);
 				return;
 			}
-			if(!gave)
+			if(!dead)
 			{
 				OverworldGui.print(quotes[1]);
 				if(move==null)
+				{
+					if(item.name.equals("Shiny Charm"))
+						Main.SHINY_CHANCE=256;
 					p.give(item);
+				}
 				else
 					p.give(move);
-				gave=true;
+				dead=true;
 			}
 			OverworldGui.print(quotes[2]);
 		}
@@ -201,14 +152,14 @@ My my, you've traveled far to save me, thank you! But I'm actually just wanderin
 				OverworldGui.print(quotes[0]);
 				return;
 			}
-			if(!gave)
+			if(!dead)
 			{
 				OverworldGui.print(quotes[1]);
 				if(move==null)
 					p.give(item);
 				else
 					p.give(move);
-				gave=true;
+				dead=true;
 			}
 			OverworldGui.print(quotes[2]);
 		}

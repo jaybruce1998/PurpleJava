@@ -147,7 +147,7 @@ AHHHHHHHHHHHH!!!!;Oh, it's gone? I guess I am, too, then!""".split("\n");
 			OverworldGui.print(quotes[0]);
 			return;
 		}
-		gave=true;
+		dead=true;
 		OverworldGui.print(quotes[1]);
 	}
 }

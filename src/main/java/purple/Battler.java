@@ -352,7 +352,7 @@ public class Battler extends Monster
 	public void append(StringBuilder sb)
 	{
 		sb.append(dexNum).append(',').append(level).append(',').append(nickname).append(',').append(status).append(',').append(xp).append(',').append(hp).append(',').append(lsi)
-			.append(',').append(atkDv).append(',').append(defDv).append(',').append(spatkDv).append(',').append(spdefDv).append(',').append(hpDv).append(',').append(spdDv).append(',').append(shiny?1:0)
+			.append(',').append(atkDv).append(',').append(defDv).append(',').append(spatkDv).append(',').append(spdefDv).append(',').append(hpDv).append(',').append(spdDv).append(',').append(shiny?'1':'0')
 			.append(',').append(atkXp).append(',').append(defXp).append(',').append(spatkXp).append(',').append(spdefXp).append(',').append(hpXp).append(',').append(spdXp);
 		for(int i=0; i<moves.length; i++)
 			if(moves[i]==null)

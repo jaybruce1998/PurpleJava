@@ -1,6 +1,10 @@
 package purple;
 
-public class Npc extends Giver
+import java.awt.image.BufferedImage;
+import java.io.File;
+import javax.imageio.ImageIO;
+
+public class Npc
 {
 	static String[] NPC_STRINGS="""
 BluesHouse;DAISY 6 4 UP
@@ -140,9 +144,61 @@ Route24;COOLTRAINER_F 19 0 RIGHT""".split("\n");
 		}
 	}
 	
+	BufferedImage bi;
+	int x, y;
+	String[] quotes;
+	boolean dead;
 	public Npc(String s, String q)
 	{
-		super(s+",null", q);
+		String[] f=s.split(" ");
+		int dir;
+		if(Giver.class.getResourceAsStream("/sprites/"+f[0]+"/9.png")==null)
+			switch(f[3])
+			{
+				case "DOWN":
+					dir=0;
+					break;
+				case "UP":
+					dir=1;
+					break;
+				case "LEFT":
+					dir=2;
+					break;
+				case "RIGHT":
+					dir=3;
+					break;
+				default:
+					throw new RuntimeException(s);
+			}
+		else
+			switch(f[3])
+			{
+				case "DOWN":
+					dir=1;
+					break;
+				case "UP":
+					dir=4;
+					break;
+				case "LEFT":
+					dir=6;
+					break;
+				case "RIGHT":
+					dir=8;
+					break;
+				default:
+					throw new RuntimeException(s);
+			}
+		bi=Trainer.TRAINER_SPRITES.computeIfAbsent(f[0]+dir, k->{
+			try {
+				return OverworldGui.scale(ImageIO.read(Giver.class.getResourceAsStream("/sprites/" + f[0] + "/" + dir + ".png")));
+			} catch (Exception e) {
+				e.printStackTrace();
+				throw new RuntimeException("No trainer sprite!");
+			}
+		});
+		x=Integer.parseInt(f[1]);
+		y=Integer.parseInt(f[2]);
+		quotes=q.split(";");
 	}
 	public void interact(Player p)
 	{
