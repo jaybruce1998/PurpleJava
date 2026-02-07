@@ -345,7 +345,31 @@ CeladonMansion2F,4,1,CeladonMansion3F,4,1
 CeladonMansion3F,2,1,CeladonMansionRoof,2,1
 CeladonMansionRoof,2,7,CeladonMansionRoofHouse,3,7
 RocketHideoutB1F,3,0,Route25,0,0
-HallOfFame,0,1,RedsHouse2F,0,6""".split("\n");
+HallOfFame,0,1,RedsHouse2F,0,6
+ViridianPokecenter,10,0,ViridianCity,21,16
+ViridianPokecenter,12,0,ViridianCity,21,16
+PewterPokecenter,10,0,ViridianCity,21,16
+PewterPokecenter,12,0,ViridianCity,21,16
+MtMoonPokecenter,10,0,ViridianCity,21,16
+MtMoonPokecenter,12,0,ViridianCity,21,16
+CeruleanPokecenter,10,0,ViridianCity,21,16
+CeruleanPokecenter,12,0,ViridianCity,21,16
+VermilionPokecenter,10,0,ViridianCity,21,16
+VermilionPokecenter,12,0,ViridianCity,21,16
+RockTunnelPokecenter,10,0,ViridianCity,21,16
+RockTunnelPokecenter,12,0,ViridianCity,21,16
+LavenderPokecenter,10,0,ViridianCity,21,16
+LavenderPokecenter,12,0,ViridianCity,21,16
+CeladonPokecenter,10,0,ViridianCity,21,16
+CeladonPokecenter,12,0,ViridianCity,21,16
+FuchsiaPokecenter,10,0,ViridianCity,21,16
+FuchsiaPokecenter,12,0,ViridianCity,21,16
+SaffronPokecenter,10,0,ViridianCity,21,16
+SaffronPokecenter,12,0,ViridianCity,21,16
+CinnabarPokecenter,10,0,ViridianCity,21,16
+CinnabarPokecenter,12,0,ViridianCity,21,16
+IndigoPlateauLobby,12,4,ViridianCity,21,16
+IndigoPlateauLobby,14,4,ViridianCity,21,16""".split("\n");
 
 	public static void buildWarps()
 	{

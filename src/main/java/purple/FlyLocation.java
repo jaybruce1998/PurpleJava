@@ -105,11 +105,6 @@ public class FlyLocation
 	}
 	public static void visit(String name)
 	{
-		switch(name)
-		{
-			case "RedsHouse1F":
-				name="PalletTown";
-		}
 		FlyLocation f=FLY_LOCATIONS.get(normalize(name));
 		if(f!=null)
 			f.visited=true;

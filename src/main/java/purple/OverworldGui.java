@@ -27,7 +27,7 @@ public class OverworldGui extends JPanel {
     static final int DISPLAY_H = 11; // how many tiles vertically to draw
 	static final Item FAKE_ID=Item.ITEM_MAP.get("Fake ID");
 	static final Item LIFT_KEY=Item.ITEM_MAP.get("Lift Key");
-	static boolean showingText, battling, choosingFromLongList, usingBattleItem, busedItem, rightClicked, inMenu, buySell, buying, selling, checkingPokes, checkingMoves, checkingTms, teachingMove, depWith, depositing, withdraw, flying, inside, showingDex, rareCandy, pickingStarter, surfing, spaceHeld;
+	static boolean showingText, battling, choosingFromLongList, usingBattleItem, busedItem, rightClicked, inMenu, buySell, buying, selling, checkingPokes, checkingMoves, checkingTms, teachingMove, depWith, depositing, withdraw, flying, inside, showingDex, rareCandy, pickingStarter, surfing, spacebar;
 	static String currentText, currentLoc;
 	private static final Deque<String> printQ=new ArrayDeque<>();
     static String mapName = "RedsHouse2F";
@@ -74,6 +74,11 @@ public class OverworldGui extends JPanel {
 	private final static BufferedImage[] DANCE_FRAMES=new BufferedImage[10], OAK_FRAMES=new BufferedImage[10], MONSTER_FRAMES=new BufferedImage[3];
 	private final Npc MATT=PokeMap.POKEMAPS.get("Route24").npcs[0][19], OAK=PokeMap.POKEMAPS.get("FuchsiaCity").npcs[6][13];
 	private final Trainer MONSTER=PokeMap.POKEMAPS.get("FuchsiaCity").trainers[5][13];
+	private boolean switchingMaps=false, spinning=false, jumping=false;
+	private static final int[] HIDEOUT_Y={0, 18, 18, 0, 14}, SILPH_X={0, 20, 20, 20, 20, 20, 18, 18, 18, 18, 12, 13},
+					CATCH_RATES={1, 45, 45, 45, 45, 45, 45, 45, 45, 45, 255, 120, 45, 255, 120, 45, 255, 120, 45, 255, 127, 255, 90, 255, 90, 190, 75, 255, 90, 235, 120, 45, 235, 120, 45, 150, 25, 190, 75, 170, 50, 255, 90, 255, 120, 45, 190, 75, 190, 75, 255, 50, 255, 90, 190, 75, 190, 75, 190, 75, 255,
+			120, 45, 200, 100, 50, 180, 90, 45, 255, 120, 45, 190, 60, 255, 120, 45, 190, 60, 190, 75, 190, 60, 45, 190, 45, 190, 75, 190, 75, 190, 60, 190, 90, 45, 45, 190, 75, 225, 60, 190, 60, 90, 45, 190, 75, 45, 45, 45, 190, 60, 120, 60, 30, 45, 45, 225, 75, 225, 60, 225, 60, 45, 45, 45, 45, 45, 45,
+			45, 255, 45, 45, 35, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 25, 3, 3, 3, 45, 27, 9, 3, 2};
 	enum Direction {
 		SOUTH(0),
 		NORTH(1),
@@ -95,9 +100,6 @@ public class OverworldGui extends JPanel {
 		}
 	}
     enum StepPhase { NONE, MOVING, LANDING }
-	static final int[] CATCH_RATES={1, 45, 45, 45, 45, 45, 45, 45, 45, 45, 255, 120, 45, 255, 120, 45, 255, 120, 45, 255, 127, 255, 90, 255, 90, 190, 75, 255, 90, 235, 120, 45, 235, 120, 45, 150, 25, 190, 75, 170, 50, 255, 90, 255, 120, 45, 190, 75, 190, 75, 255, 50, 255, 90, 190, 75, 190, 75, 190, 75, 255,
-			120, 45, 200, 100, 50, 180, 90, 45, 255, 120, 45, 190, 60, 255, 120, 45, 190, 60, 190, 75, 190, 60, 45, 190, 45, 190, 75, 190, 75, 190, 60, 190, 90, 45, 45, 190, 75, 225, 60, 190, 60, 90, 45, 190, 75, 45, 45, 45, 190, 60, 120, 60, 30, 45, 45, 225, 75, 225, 60, 225, 60, 45, 45, 45, 45, 45, 45,
-			45, 255, 45, 45, 35, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 25, 3, 3, 3, 45, 27, 9, 3, 2};
 	public static void print(String s)
 	{
 		if(showingText)
@@ -195,7 +197,7 @@ public class OverworldGui extends JPanel {
         timer = new Timer(1000 / 60, e -> {
 			if(++frames%6==0)
 			{
-				if(spaceHeld)
+				if(spacebar)
 					clickMouse();
 				if(frames%30==0)
 					MATT.bi=DANCE_FRAMES[(int)(Math.random()*10)];
@@ -1244,7 +1246,7 @@ public class OverworldGui extends JPanel {
 		});
 		actionMap.put("stopClicking", new AbstractAction() {
 			@Override public void actionPerformed(ActionEvent e) {
-				spaceHeld=!spaceHeld;
+				spacebar=!spacebar;
 			}
 		});
 		actionMap.put("save", new AbstractAction() {
@@ -1729,7 +1731,6 @@ public class OverworldGui extends JPanel {
 			// Clean up any double spaces that might have been created
 			.replaceAll(" +", " ");
 	}
-	boolean switchingMaps=false, spinning=false, jumping=false;
     private boolean canMove(Direction d) {
 		if(switchingMaps)
 			return true;
@@ -1863,8 +1864,7 @@ public class OverworldGui extends JPanel {
 		print(z?"Huh?!":"Wee!");
 		return q;
 	}
-	static int[] HIDEOUT_Y={0, 18, 18, 0, 14};
-	static int[] SILPH_X={0, 20, 20, 20, 20, 20, 18, 18, 18, 18, 12, 13};
+
 	private char randomSpooky()
 	{
 		return (char)(32 + Math.random() * (126 - 32 + 1));

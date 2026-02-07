@@ -132,6 +132,7 @@ ViridianBunglerHouse;BIKE_SHOP_CLERK 3 2 UP
 Daycare;BLUE 5 4 LEFT
 SafariZoneCenter;GYM_GUIDE 13 23 RIGHT
 Route24;COOLTRAINER_F 19 0 RIGHT""".split("\n");
+	private static final Move FLASH=Move.MOVE_MAP.get("Flash");
 	public static void buildNpcs()
 	{
 		int i=0;
@@ -140,7 +141,7 @@ Route24;COOLTRAINER_F 19 0 RIGHT""".split("\n");
 			String[] a=s.split(";");
 			PokeMap pm=PokeMap.POKEMAPS.get(a[0]);
 			for(String n: a[1].split(","))
-				pm.addNpc(n, Trader.NPC_QUOTE_STRINGS[i++]);
+				pm.addNpc(n, NpcStrings.NPC_QUOTE_STRINGS[i++]);
 		}
 	}
 	
@@ -202,6 +203,24 @@ Route24;COOLTRAINER_F 19 0 RIGHT""".split("\n");
 	}
 	public void interact(Player p)
 	{
-		OverworldGui.print(quotes[0]);
+		if(p.hasMove(FLASH)&&Math.random()<0.01)
+		{
+			OverworldGui.spacebar=false;
+			OverworldGui.print(quotes[0]);
+			OverworldGui.print(p.name+" used flash!");
+			if(Math.random()<0.5)
+			{
+				OverworldGui.print("NOO PLEASE DON'T!!!");
+				OverworldGui.print("(They faded into the void...)");
+				dead=true;
+			}
+			else
+			{
+				OverworldGui.print("Well in that case...");
+				OverworldGui.print("They flashed you back!");
+			}
+		}
+		else
+			OverworldGui.print(quotes[0]);
 	}
 }

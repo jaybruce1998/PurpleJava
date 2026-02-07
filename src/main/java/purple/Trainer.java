@@ -101,7 +101,7 @@ RocketHideoutB1F;BLUE,3,3,DOWN,Programmer Jay,999999,190 Abra,130 Magikarp,135 C
 		for(int i=0; i<E4_TEAM_STRINGS.length; i++)
 		{
 			String[] a=E4_TEAM_STRINGS[i].split(";");
-			PokeMap.POKEMAPS.get(a[0]).addE4Trainer(i*2, a[1], TrainerStrings.E4_SPEECH_STRINGS[i]);
+			PokeMap.POKEMAPS.get(a[0]).addE4Trainer(i*2, a[1], NpcStrings.E4_SPEECH_STRINGS[i]);
 		}
 	}
 	public static void buildTrainers()
@@ -157,7 +157,7 @@ RocketHideoutB1F;BLUE,3,3,DOWN,Programmer Jay,999999,190 Abra,130 Magikarp,135 C
 		for(int i=0; i<E4_TEAM_STRINGS.length; i++)
 		{
 			String[] a=E4_TEAM_STRINGS[i].split(";");
-			PokeMap.POKEMAPS.get(a[0]).addE4Trainer(i*2, a[1], TrainerStrings.E4_SPEECH_STRINGS[i]);
+			PokeMap.POKEMAPS.get(a[0]).addE4Trainer(i*2, a[1], NpcStrings.E4_SPEECH_STRINGS[i]);
 		}
 	}
 	

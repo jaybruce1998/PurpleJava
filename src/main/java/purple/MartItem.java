@@ -11,8 +11,8 @@ CeruleanMart,2 5,PokeBall,Potion,Repel,Antidote,Burn Heal,Awakening,Paralyze Hea
 CeruleanMart,0 7,PokeBall,Potion,Repel,Antidote,Burn Heal,Awakening,Paralyze Heal
 VermilionMart,2 5,PokeBall,Super Potion,Ice Heal,Awakening,Paralyze Heal,Repel
 VermilionMart,0 7,PokeBall,Super Potion,Ice Heal,Awakening,Paralyze Heal,Repel
-LavenderTown,2 5,Great Ball,Super Potion,Revive,Escape Rope,Super Repel,Antidote,Burn Heal,Ice Heal,Paralyze Heal
-LavenderTown,0 7,Great Ball,Super Potion,Revive,Escape Rope,Super Repel,Antidote,Burn Heal,Ice Heal,Paralyze Heal
+LavenderMart,2 5,Great Ball,Super Potion,Revive,Escape Rope,Super Repel,Antidote,Burn Heal,Ice Heal,Paralyze Heal
+LavenderMart,0 7,Great Ball,Super Potion,Revive,Escape Rope,Super Repel,Antidote,Burn Heal,Ice Heal,Paralyze Heal
 CeladonMart2F,3 3,Great Ball,Super Potion,Revive,Super Repel,Antidote,Burn Heal,Ice Heal,Awakening,Paralyze Heal
 CeladonMart2F,5 5,Great Ball,Super Potion,Revive,Super Repel,Antidote,Burn Heal,Ice Heal,Awakening,Paralyze Heal
 CeladonMart2F,6 5,Move=Double Team 1000,Move=Reflect 1000,Move=Razor Wind 2000,Move=Horn Drill 2000,Move=Egg Bomb 2000,Move=Mega Punch 3000,Move=Mega Kick 3000,Move=Take Down 3000,Move=Submission 3000

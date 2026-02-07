@@ -20,7 +20,7 @@ public class BattleState
 		if(b.shouldStruggle())
 			return -1;
 		for(int i=0; i<4; i++)
-			OverworldGui.strArr[i]=b.moves[i]==null?"":b.moves[i].name+" ("+b.monster.pp[i]+"/"+b.monster.mpp[i]+")";
+			OverworldGui.strArr[i]=b.moves[i]==null?"":b.monster.moves[i].name+" ("+b.monster.pp[i]+"/"+b.monster.mpp[i]+")";
 		while(true)
 		{
 			int moveDex=guiChoice(3);
@@ -164,7 +164,7 @@ public class BattleState
 			yourMove=STRUGGLE;
 			for(int i=0; i<ACTIONS.length; i++)
 				OverworldGui.strArr[i]=ACTIONS[i];
-			switch(gui.spaceHeld?0:guiChoice(3))
+			switch(gui.spacebar?0:guiChoice(3))
 			{
 				case 0:
 					if(pState.nextMove==null)
@@ -399,7 +399,7 @@ public class BattleState
 			yourMove=STRUGGLE;
 			for(int i=0; i<ACTIONS.length; i++)
 				OverworldGui.strArr[i]=ACTIONS[i];
-			switch(gui.spaceHeld?0:guiChoice(3))
+			switch(gui.spacebar?0:guiChoice(3))
 			{
 				case 0:
 					if(pState.nextMove==null)

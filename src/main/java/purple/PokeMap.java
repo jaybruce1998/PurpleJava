@@ -342,7 +342,7 @@ ViridianCity west Route22 8""".split("\n");
 				throw new RuntimeException(t.dir+" BRO WHAT?!");
 		}
 		t.id=Trainer.tid++;
-		t.phrases=TrainerStrings.CATCH_PHRASE_STRINGS[t.id].split(";");
+		t.phrases=NpcStrings.TRAINER_SPEECH_STRINGS[t.id].split(";");
 	}
 	public void addTrainers(String[] a)
 	{
@@ -354,14 +354,14 @@ ViridianCity west Route22 8""".split("\n");
 		Trainer t=new Trainer.Leader(i, a);
 		trainers[t.y][t.x]=t;
 		sight[t.y][t.x]=-2;
-		t.phrases=TrainerStrings.LEADER_SPEECH_STRINGS[i].split(";");
+		t.phrases=NpcStrings.LEADER_SPEECH_STRINGS[i].split(";");
 	}
 	public void addGioRival(int i, String s)
 	{
 		Trainer t=new Trainer.GioRival(i, s);
 		trainers[t.y][t.x]=t;
 		sight[t.y][t.x]=-2;
-		t.phrases=TrainerStrings.GIO_RIVAL_SPEECH_STRINGS[i].split(";");
+		t.phrases=NpcStrings.GIO_RIVAL_SPEECH_STRINGS[i].split(";");
 	}
 	public void addE4Trainer(int id, String s, String p)
 	{

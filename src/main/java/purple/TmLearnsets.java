@@ -157,7 +157,7 @@ Mega Punch,Mega Kick,Toxic,Body Slam,Take Down,Double-Edge,Bubble Beam,Water Gun
 Mega Punch,Razor Wind,Swords Dance,Whirlwind,Mega Kick,Toxic,Horn Drill,Body Slam,Take Down,Double-Edge,Bubble Beam,Water Gun,Ice Beam,Blizzard,Hyper Beam,Pay Day,Submission,Counter,Seismic Toss,Rage,Mega Drain,Solar Beam,Dragon Rage,Thunderbolt,Thunder,Earthquake,Fissure,Dig,Psychic,Teleport,Mimic,Double Team,Reflect,Bide,Metronome,Self-Destruct,Egg Bomb,Fire Blast,Swift,Skull Bash,Soft-Boiled,Dream Eater,Sky Attack,Rest,Thunder Wave,Psywave,Explosion,Rock Slide,Tri Attack,Substitute,Cut,Fly,Surf,Strength,Flash,Rat Gambit""".split("\n");
 	public static void buildTmLearnsets()
 	{
-		for(int i=1; i<LEARNSET_STRINGS.length; i++)
+		for(int i=0; i<LEARNSET_STRINGS.length; i++)
 			Monster.MONSTERS[i].addMoves(LEARNSET_STRINGS[i]);
 	}
 }

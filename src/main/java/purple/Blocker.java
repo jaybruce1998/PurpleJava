@@ -43,6 +43,7 @@ Route23;GUARD 9 119 DOWN,null;2
 Route23;GUARD 8 136 DOWN,null;1
 CinnabarIsland;GAMBLER_ASLEEP 6 4 DOWN,null;5
 CeruleanCity;SUPER_NERD 4 12 DOWN,null;8
+Route9;GAMBLER 4 8 LEFT,null;2
 FuchsiaCity;OAK 13 6 DOWN,null;8""".split("\n");
 	static String[] BOULDER_STRINGS="""
 SeafoamIslands1F;BOULDER 18 10 DOWN,Move=Strength;BOULDER 26 7 DOWN,Move=Strength
@@ -100,6 +101,7 @@ There's nothing I love more than a man in uniform!;Where's your uniform?
 Nice try, but not today.;Respect - you've earned this path!
 This is my house, do you like it?;Okay I'll admit it, I don't live here. Please help me.
 I sometimes hear strange sounds from deep inside.;Huh, you think you're pretty tough, don't you? Yeah, me too...
+Hey, slow down speed racer!;Cowabunga!
 AHHHHHHHHHHHH!!!!;Oh, it's gone? I guess I am, too, then!""".split("\n");
 	public static void buildBlockers()
 	{
