@@ -159,7 +159,7 @@ Thunder Wave	Electric	Status	-	90	20	PARALYZE
 Thunderbolt	Electric	Special	90	100	15	10/100 PARALYZE
 Toxic	Poison	Status	-	90	10	TOXIC
 Transform	Normal	Status	-	-	10	TRANSFORM_INTO_OPPONENT
-Tri Attack	Normal	Special	80	100	10	20/100 BURN/PARALYZE/FREEZE
+Tri Attack	Normal	Special	99	99	33	33/100 BURN/PARALYZE/FREEZE
 Twineedle	Bug	Physical	25	100	20	HIT 2 20/100 POISON
 Vine Whip	Grass	Physical	45	100	25	atk UP 1
 Vise Grip	Normal	Physical	55	100	30	atk UP 1
@@ -223,8 +223,14 @@ Sludge Bomb	Poison	Special	90	100	10	30/100 POISON""".split("\n");
 	{
 		if(effects.isEmpty())
 			return 0;
-		String e=effects.get(0).effect;
-		return e.equals("ATTACK_FIRST")?1:e.equals("ATTACK_SECOND")?-1:0;
+		switch(effects.get(0).effect)
+		{
+			case "ATTACK_FIRST":
+				return 1;
+			case "ATTACK_SECOND":
+				return -1;
+		}
+		return 0;
 	}
 	public int critChance()
 	{

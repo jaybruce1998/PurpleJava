@@ -109,16 +109,15 @@ public class BattleState
 	}
 	private void gainXp(Player p, Set<Battler> participants, Battler fainted, boolean trainer, int lucky)
 	{
-		Battler[] a=participants.toArray(new Battler[0]);
-		int l=a.length, xp=EXPERIENCE_TABLE[fainted.dexNum]*fainted.level/7, per=xp/l,
+		int l=participants.size(), xp=EXPERIENCE_TABLE[fainted.dexNum]*fainted.level/7, per=xp/l,
 			atk=fainted.bAtk/l, def=fainted.bDef/l, spatk=fainted.bSpatk/l, spdef=fainted.bSpdef/l, hp=fainted.bHp/l, spd=fainted.bSpd/l;
+		per*=lucky;
 		if(trainer)
 		{
 			per*=3;
 			per/=2;
 		}
-		per*=lucky;
-		for(Battler b: a)
+		for(Battler b: participants)
 			b.gainXp(p, b==monster?moves:b.moves, per, atk, def, spatk, spdef, hp, spd);
 	}
 	public static int guiChoice(int m)
@@ -608,6 +607,7 @@ public class BattleState
 	Move nextMove, lastMove;
 	int[] lastDamage;
 	Move[] moves;
+	private String es;
 	public BattleState(Battler monster)
 	{
 		this.monster=monster;
@@ -684,7 +684,6 @@ public class BattleState
 		}
 		return false;
 	}
-	private String es;
 	private int calcDamage(Move m, BattleState b)
 	{
 		double mul=Types.damage(m, b.types), d;
@@ -729,7 +728,7 @@ public class BattleState
 				{
 					d=((2.0*monster.level/5+2)*m.power*spatk*effect(spatkStage)/b.spdef/effect(b.spdefStage)/50+2)
 						*stab(m)*mul*(217+(int)(Math.random()*39))/255;
-					if(b.defTurns>0)
+					if(b.spdefTurns>0)
 						d/=2;
 				}
 				return Math.max(1, (int)d);

@@ -493,6 +493,8 @@ public class OverworldGui extends JPanel {
 						{
 							strArr[0]=null;
 							chosenMon.moves[i]=tm;
+							chosenMon.pp[i]=tm.pp;
+							chosenMon.mpp[clickedChoice]=tm.pp;
 							print(chosenMon.nickname+" learned "+tm.name+"!");
 							return;
 						}
@@ -521,6 +523,7 @@ public class OverworldGui extends JPanel {
 				chosenMon.moves[clickedChoice]=tm;
 				strArr[0]=null;
 				chosenMon.pp[clickedChoice]=Math.min(chosenMon.pp[clickedChoice], tm.pp);
+				chosenMon.mpp[clickedChoice]=tm.pp;
 				print(chosenMon.nickname+" learned "+tm.name+"!");
 			}
 		}
