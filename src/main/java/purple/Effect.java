@@ -7,7 +7,6 @@ public class Effect
 	String effect, stat;
 	boolean me, up;
 	int amount, variation;
-	String[] effects;
 	private Effect(Effect e)
 	{
 		acc=e.acc;
@@ -94,10 +93,6 @@ public class Effect
 		this.amount=amount;
 		this.variation=variation;
 	}
-	public Effect(String[] effects)
-	{
-		this.effects=effects;
-	}
 	public static List<Effect> getEffects(String[] e, int i)
 	{
 		List<Effect> effects=new ArrayList<>();
@@ -109,16 +104,14 @@ public class Effect
 			effects.add(new Effect(eff, getEffects(e, i+1)));
 			return effects;
 		}
+		if(eff.equals("BURN/PARALYZE/FREEZE"))
+		{
+			effects.add(new Effect(eff));
+			return effects;
+		}
 		if(eff.indexOf("/")>0)
 		{
-			String[] ea=eff.split("/");
-			if(ea[0].matches("\\d+"))
-				effects.add(new Effect(ea, getEffects(e, i+1)));
-			else
-			{
-				effects.add(new Effect(ea));
-				effects.addAll(getEffects(e, i+1));
-			}
+			effects.add(new Effect(eff.split("/"), getEffects(e, i+1)));
 			return effects;
 		}
 		boolean me=!eff.startsWith("opp");

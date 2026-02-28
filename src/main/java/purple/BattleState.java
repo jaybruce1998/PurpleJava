@@ -1407,11 +1407,35 @@ public class BattleState
 						else
 							OverworldGui.print(b.monster.nickname+" cannot fall asleep!");
 						break;
-					case "FLINCH":
-						b.flinched=true;
+					case "BURN/PARALYZE/FREEZE":
+						if(b.monster.status.isEmpty()&&b.subHp==0)
+						{
+							if(Math.random()*3<1)
+							{
+								if(!b.hasType("Fire"))
+								{
+									b.monster.status="BURNED";
+									OverworldGui.print(b.monster.nickname+" was burned!");
+								}
+							}
+							else if(Math.random()<0.5)
+							{
+								if(!b.hasType("Electric"))
+								{
+									b.monster.status="PARALYZED";
+									OverworldGui.print(b.monster.nickname+" was paralyzed!");
+								}
+							}
+							else if(!b.hasType("Ice"))
+							{
+								b.sTurns=2+(int)(Math.random()*4);
+								b.monster.status="FROZEN";
+								OverworldGui.print(b.monster.nickname+" froze!");
+							}
+						}
 						break;
 					case "FREEZE":
-						if(b.monster.status.isEmpty()&&b.subHp==0)
+						if(b.monster.status.isEmpty()&&!b.hasType("Ice")&&b.subHp==0)
 						{
 							b.sTurns=2+(int)(Math.random()*4);
 							b.monster.status="FROZEN";
@@ -1419,6 +1443,9 @@ public class BattleState
 						}
 						else
 							OverworldGui.print(b.monster.nickname+" cannot be frozen!");
+						break;
+					case "FLINCH":
+						b.flinched=true;
 						break;
 					case "CONFUSE":
 						if(b.cTurns==0&&b.subHp==0)
